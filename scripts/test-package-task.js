@@ -1,0 +1,61 @@
+import { cpSync, existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { delimiter, dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
+const npmCli = realpathSync(join(dirname(process.execPath), 'npm'));
+const temporaryRoot = mkdtempSync(join(tmpdir(), 'component-playground-consumer-'));
+const packageDirectory = join(temporaryRoot, 'package');
+const consumerDirectory = join(temporaryRoot, 'consumer');
+const commandEnvironment = {
+  ...process.env,
+  PATH: [dirname(process.execPath), process.env.PATH].filter(Boolean).join(delimiter),
+  npm_config_cache: join(temporaryRoot, 'npm-cache'),
+};
+
+function run(command, args, cwd) {
+  const result = spawnSync(command, args, {
+    cwd,
+    env: commandEnvironment,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+
+  if (result.status !== 0) {
+    const details = [result.stdout, result.stderr].filter(Boolean).join('\n');
+    throw new Error(`${command} ${args.join(' ')} failed\n${details}`);
+  }
+
+  return result.stdout.trim();
+}
+
+function runNpm(args, cwd) {
+  return run(process.execPath, [npmCli, ...args], cwd);
+}
+
+try {
+  mkdirSync(packageDirectory, { recursive: true });
+  cpSync(join(repositoryRoot, 'examples/plain-vue'), consumerDirectory, { recursive: true });
+
+  const packOutput = runNpm(
+    ['pack', '--ignore-scripts', '--json', '--pack-destination', packageDirectory],
+    repositoryRoot,
+  );
+  const [{ filename }] = JSON.parse(packOutput);
+  const tarball = join(packageDirectory, filename);
+
+  runNpm(
+    ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball],
+    consumerDirectory,
+  );
+  runNpm(['run', 'build'], consumerDirectory);
+
+  const output = join(consumerDirectory, 'dist/index.html');
+  if (!existsSync(output)) throw new Error(`Consumer build did not create ${output}`);
+
+  process.stdout.write(`Packed consumer built successfully with ${filename}\n`);
+} finally {
+  rmSync(temporaryRoot, { recursive: true, force: true });
+}
