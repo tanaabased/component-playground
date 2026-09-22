@@ -11,6 +11,10 @@
   },
   "homepage": "https://github.com/tanaabased/component-playground",
   "bugs": "https://github.com/tanaabased/component-playground/issues",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "files": [
     "dist/",
     "README.md"

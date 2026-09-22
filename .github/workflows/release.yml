@@ -1,0 +1,85 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish-npm:
+    name: Publish npm
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Install Bun
+        uses: tanaabased/actions/setup-bun@v1
+      - name: Install Node
+        uses: tanaabased/actions/setup-node@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Validate source
+        run: |
+          bun run lint
+          bun run test
+      - name: Prepare release
+        uses: tanaabased/actions/prepare-release@v1
+        with:
+          commands: |
+            bun run format:write
+            bun run format:check
+      - name: Build prepared package and documentation
+        run: bun run build
+      - name: Pack prepared package
+        id: pack
+        uses: tanaabased/actions/npm-pack@v1
+      - name: Test exact packed artifact
+        env:
+          TARBALL: ${{ steps.pack.outputs.tarball-path }}
+        run: node scripts/test-package-task.js
+      - name: Dry-run publication
+        uses: tanaabased/actions/publish-npm@v1
+        with:
+          tarball: ${{ steps.pack.outputs.tarball-path }}
+          dry-run: true
+      - name: Publish npm
+        uses: tanaabased/actions/publish-npm@v1
+        with:
+          tarball: ${{ steps.pack.outputs.tarball-path }}
+          registry-token: ${{ secrets.TANAAB_NPM_DEPLOY }}
+          channel-token: ${{ secrets.TANAAB_NPM_DEPLOY }}
+
+  publish-repo:
+    name: Publish repo
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout release source
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+      - name: Install Bun
+        uses: tanaabased/actions/setup-bun@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Publish repo
+        uses: tanaabased/actions/publish-repo@v1
+        with:
+          commands: |
+            bun run format:write
+            bun run format:check
+          sync-branch: main
+          sync-token: ${{ secrets.TANAAB_COAXIUM_INJECTOR }}

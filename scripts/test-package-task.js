@@ -1,6 +1,6 @@
 import { cpSync, existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { delimiter, dirname, join } from 'node:path';
+import { basename, delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -39,12 +39,18 @@ try {
   mkdirSync(packageDirectory, { recursive: true });
   cpSync(join(repositoryRoot, 'examples/plain-vue'), consumerDirectory, { recursive: true });
 
-  const packOutput = runNpm(
-    ['pack', '--ignore-scripts', '--json', '--pack-destination', packageDirectory],
-    repositoryRoot,
-  );
-  const [{ filename }] = JSON.parse(packOutput);
-  const tarball = join(packageDirectory, filename);
+  let tarball;
+
+  if (process.env.TARBALL) {
+    tarball = realpathSync(process.env.TARBALL);
+  } else {
+    const packOutput = runNpm(
+      ['pack', '--ignore-scripts', '--json', '--pack-destination', packageDirectory],
+      repositoryRoot,
+    );
+    const [{ filename }] = JSON.parse(packOutput);
+    tarball = join(packageDirectory, filename);
+  }
 
   runNpm(
     ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball],
@@ -55,7 +61,7 @@ try {
   const output = join(consumerDirectory, 'dist/index.html');
   if (!existsSync(output)) throw new Error(`Consumer build did not create ${output}`);
 
-  process.stdout.write(`Packed consumer built successfully with ${filename}\n`);
+  process.stdout.write(`Packed consumer built successfully with ${basename(tarball)}\n`);
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
 }
