@@ -14,7 +14,8 @@ function escapeSlotText(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+    .replaceAll('>', '&gt;')
+    .replaceAll('{{', '&#123;&#123;');
 }
 
 function escapeJsStringValue(value) {

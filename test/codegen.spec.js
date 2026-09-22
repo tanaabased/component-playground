@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 
 import { compile } from '@vue/compiler-dom';
+import * as Vue from 'vue';
+import { renderToString } from 'vue/server-renderer';
 
 import {
   createPlaygroundState,
@@ -12,6 +14,45 @@ import {
 } from '../utils/codegen.js';
 
 describe('utils/codegen', () => {
+  for (const slotKind of ['default', 'named', 'repeat']) {
+    it(`should preserve literal slot text in copied ${slotKind} slots`, async () => {
+      const text = '{{ 1 + 1 }} {{ missing }} <b> & &#123;';
+      const schema = {
+        name: 'ExampleText',
+        slots:
+          slotKind === 'repeat'
+            ? {
+                default: {
+                  kind: 'repeat',
+                  componentName: 'span',
+                  items: [text],
+                  defaultCount: 1,
+                },
+              }
+            : { [slotKind === 'named' ? 'title' : 'default']: { kind: 'text', default: text } },
+      };
+      const generated = generateComponentUsage(schema, createPlaygroundState(schema));
+      const render = new Function('Vue', compile(generated.copyCode).code)(Vue);
+      const ExampleText = {
+        setup:
+          (_, { slots }) =>
+          () =>
+            Vue.h('p', slots.title?.() ?? slots.default?.()),
+      };
+      const actual = await renderToString(
+        Vue.createSSRApp({ components: { ExampleText }, render }),
+      );
+      const expected = await renderToString(
+        slotKind === 'repeat' ? Vue.h('span', text) : Vue.createTextVNode(text),
+      );
+      assert.equal(actual.slice('<p>'.length, -'</p>'.length).trim(), expected);
+      const region = generated.regions.find((candidate) => candidate.kind === 'slot-text');
+      if (region) {
+        assert.equal(decodeRegionValue(region, generated.code.slice(region.from, region.to)), text);
+      }
+    });
+  }
+
   it('should preserve multiline object-array strings through copy and editing', () => {
     const label = 'First\r\nSecond\nLiteral \\n and \\r, \'quotes\' and "double quotes"';
     const schema = {
