@@ -12,6 +12,58 @@ import {
 } from '../utils/codegen.js';
 
 describe('utils/codegen', () => {
+  it('should preserve multiline object-array strings through copy and editing', () => {
+    const label = 'First\r\nSecond\nLiteral \\n and \\r, \'quotes\' and "double quotes"';
+    const schema = {
+      name: 'ExampleList',
+      props: {
+        items: {
+          kind: 'object-array',
+          default: [{ label }],
+          fields: [{ path: 'label', kind: 'string' }],
+        },
+      },
+    };
+    const state = createPlaygroundState(schema);
+    const generated = generateComponentUsage(schema, state);
+    const { ast } = compile(generated.copyCode);
+    const expression = ast.children[0].props.find((prop) => prop.arg?.content === 'items').exp
+      .content;
+    assert.deepEqual(
+      new Function(`return (${expression})`)(),
+      getPreviewProps(schema, state).items,
+    );
+    const region = generated.regions.find((candidate) => candidate.kind === 'array-prop-field');
+    assert.equal(decodeRegionValue(region, generated.code.slice(region.from, region.to)), label);
+  });
+
+  it('should explicitly bind false props on repeated children', () => {
+    const schema = {
+      name: 'ExampleList',
+      slots: {
+        default: {
+          kind: 'repeat',
+          componentName: 'ExampleChild',
+          props: { enabled: false, quiet: true },
+          items: ['One'],
+          defaultCount: 1,
+        },
+      },
+    };
+    const { copyCode } = generateComponentUsage(schema, createPlaygroundState(schema));
+    const { ast } = compile(copyCode);
+    const child = ast.children[0].children.find((node) => node.tag === 'ExampleChild');
+    const enabled = child.props.find((prop) => prop.arg?.content === 'enabled');
+    assert.equal(enabled.exp.content, 'false');
+    assert(child.props.some((prop) => prop.name === 'quiet'));
+  });
+
+  it('should preserve out-of-range numeric entities without interrupting editing', () => {
+    const region = { kind: 'prop-value', valueKind: 'string' };
+    assert.equal(decodeRegionValue(region, '&#99999999; &#x110000;'), '&#99999999; &#x110000;');
+    assert.equal(decodeRegionValue(region, '&#128512; &#x1f600; &amp;'), '😀 😀 &');
+  });
+
   it('should create state from schema defaults and authored initial state', () => {
     const schema = {
       controls: {

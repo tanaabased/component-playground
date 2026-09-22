@@ -1,5 +1,8 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
+- Fixed copied multiline object-array values and explicit false props on repeated children.
+- Fixed out-of-range numeric entities interrupting playground editing.
+
 # Changelog
 
 ## v0.0.1 - [September 22, 2026](https://github.com/tanaabased/component-playground/releases/tag/v0.0.1)
