@@ -3,6 +3,8 @@
 A small Vue 3 component for building schema-driven, interactive component examples without a
 VitePress or Tanaab runtime dependency.
 
+Try the [live demo](https://cp.tanaab.dev).
+
 ## Install
 
 ```sh
