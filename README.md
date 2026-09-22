@@ -27,6 +27,14 @@ and runs the example's production build. It requires Node 26 because the current
 part of the consumer check. `build` produces both the package and the stock-theme VitePress site;
 `dev:docs` builds the local package first so the site exercises its public exports.
 
+## Deploy
+
+The documentation site is ready for Netlify through [`netlify.toml`](netlify.toml). Import
+`tanaabased/component-playground` as an existing Git repository, use `main` as the production branch,
+and leave the base directory unset. The repository configuration installs the locked dependencies
+with Bun 1.4.2, runs the package and documentation build, and publishes
+`docs/.vitepress/dist`. No deployment secrets are required.
+
 ## Package boundary
 
 The package exports the `ComponentPlayground` Vue component and an optional structural stylesheet:
