@@ -1,6 +1,7 @@
 ## {{ UNRELEASED_VERSION }} - [{{ UNRELEASED_DATE }}]({{ UNRELEASED_LINK }})
 
 - Fixed copied multiline object-array values and explicit false props on repeated children.
+- Fixed editor initialization after unmount and restored keyboard focus when closing enum selectors.
 - Fixed out-of-range numeric entities interrupting playground editing.
 
 # Changelog
