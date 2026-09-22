@@ -23,7 +23,8 @@ jobs:
       - name: Read release metadata
         id: release
         run: |
-          echo "version=$(node -p 'require(\"./package.json\").version')" >> "$GITHUB_OUTPUT"
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "date=$(date -u '+%B %-d, %Y')" >> "$GITHUB_OUTPUT"
       - name: Prepare release candidate
         uses: tanaabased/actions/prepare-release@v1
