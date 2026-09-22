@@ -23,14 +23,17 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "bun run --bun vite build",
-    "dev:example": "bun run build && bun run --bun vite --config examples/plain-vue/vite.local.config.js",
+    "build": "bun run build:package && bun run build:docs",
+    "build:package": "bun run --bun vite build",
+    "build:docs": "bun run --bun vitepress build docs",
+    "dev:docs": "bun run build:package && bun run --bun vitepress dev docs",
+    "dev:example": "bun run build:package && bun run --bun vite --config examples/plain-vue/vite.local.config.js",
     "lint:eslint": "bun run --bun eslint .",
     "format:check": "bun run --bun prettier . --check --ignore-unknown",
     "format:write": "bun run --bun prettier . --write --ignore-unknown",
     "lint": "bun run lint:eslint && bun run format:check",
     "test": "bun run --bun mocha \"test/**/*.spec.js\"",
-    "test:package": "bun run build && node scripts/test-package-task.js"
+    "test:package": "bun run build:package && node scripts/test-package-task.js"
   },
   "peerDependencies": {
     "vue": "^3.5.0"
@@ -42,8 +45,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@vue/compiler-dom": "^3.5.43",
     "@vitejs/plugin-vue": "^6.0.9",
+    "@vue/compiler-dom": "^3.5.43",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-vue": "^10.11.0",
@@ -51,6 +54,7 @@
     "mocha": "^12.0.2",
     "prettier": "^3.9.8",
     "vite": "^8.3.0",
+    "vitepress": "^1.6.4",
     "vue": "^3.5.43",
     "vue-eslint-parser": "^10.4.1"
   }
