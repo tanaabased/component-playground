@@ -14,13 +14,16 @@ function escapeSlotText(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;');
+    .replaceAll('>', '&gt;')
+    .replaceAll('{{', '&#123;&#123;');
 }
 
 function escapeJsStringValue(value) {
   return String(value ?? '')
     .replaceAll('\\', '\\\\')
-    .replaceAll("'", "\\'");
+    .replaceAll("'", "\\'")
+    .replaceAll('\r', '\\r')
+    .replaceAll('\n', '\\n');
 }
 
 function escapeBoundJsStringValue(value) {
@@ -37,12 +40,13 @@ function decodeHtmlEntities(value) {
     (match, entity) => {
       const normalized = entity.toLowerCase();
 
-      if (normalized.startsWith('#x')) {
-        return String.fromCodePoint(Number.parseInt(normalized.slice(2), 16));
-      }
-
       if (normalized.startsWith('#')) {
-        return String.fromCodePoint(Number.parseInt(normalized.slice(1), 10));
+        const hexadecimal = normalized.startsWith('#x');
+        const codePoint = Number.parseInt(
+          normalized.slice(hexadecimal ? 2 : 1),
+          hexadecimal ? 16 : 10,
+        );
+        return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : match;
       }
 
       const namedEntities = {
@@ -59,7 +63,8 @@ function decodeHtmlEntities(value) {
 }
 
 function decodeJsStringValue(value) {
-  return decodeHtmlEntities(value).replaceAll("\\'", "'").replaceAll('\\\\', '\\');
+  const escapes = { '\\': '\\', "'": "'", n: '\n', r: '\r' };
+  return decodeHtmlEntities(value).replace(/\\([\\'nr])/g, (_, character) => escapes[character]);
 }
 
 function getSchemaProps(schema) {
@@ -420,7 +425,7 @@ function formatChildProps(props = {}) {
     const attribute = toKebabCase(name);
 
     if (typeof value === 'boolean') {
-      if (value) attributes.push(attribute);
+      attributes.push(value ? attribute : `:${attribute}="false"`);
       continue;
     }
 

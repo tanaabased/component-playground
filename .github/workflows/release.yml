@@ -41,8 +41,8 @@ jobs:
           commands: |
             bun run format:write
             bun run format:check
-      - name: Build prepared package and documentation
-        run: bun run build
+      - name: Build prepared package
+        run: bun run build:package
       - name: Pack prepared package
         id: pack
         uses: tanaabased/actions/npm-pack@v1
@@ -59,7 +59,6 @@ jobs:
         uses: tanaabased/actions/publish-npm@v1
         with:
           tarball: ${{ steps.pack.outputs.tarball-path }}
-          registry-token: ${{ secrets.TANAAB_NPM_DEPLOY }}
           channel-token: ${{ secrets.TANAAB_NPM_DEPLOY }}
 
   publish-repo:

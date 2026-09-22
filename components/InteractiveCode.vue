@@ -3,7 +3,7 @@
     ref="wrapperElement"
     class="component-playground-code"
     @focusout="handleWrapperFocusout"
-    @keydown.esc="closeEnumPopover"
+    @keydown.esc="closeEnumPopover(true)"
   >
     <div ref="editorElement" class="component-playground-code__editor"></div>
     <pre
@@ -19,7 +19,7 @@
         role="group"
         :aria-label="`Select ${activeEnum.label}`"
         @focusout="handlePopoverFocusout"
-        @keydown.esc="closeEnumPopover"
+        @keydown.esc="closeEnumPopover(true)"
       >
         <button
           v-for="option in activeEnum.options"
@@ -106,6 +106,7 @@ let codeMirrorDecoration;
 let currentRegions = props.regions;
 let suppressUpdate = false;
 let highlightSequence = 0;
+let unmounted = false;
 
 function isTextEditableRegion(region) {
   if (!region) return false;
@@ -181,8 +182,11 @@ function allChangesAreEditable(transaction) {
   return allowed;
 }
 
-function closeEnumPopover() {
+function closeEnumPopover(restoreFocus = false) {
+  if (!activeEnum.value) return;
+
   activeEnum.value = null;
+  if (restoreFocus) view?.focus();
 }
 
 function focusStaysInEditorOrPopover(target) {
@@ -213,7 +217,7 @@ function selectEnumValue(value) {
     value,
   });
 
-  closeEnumPopover();
+  closeEnumPopover(true);
 }
 
 function openEnumPopover(region) {
@@ -222,6 +226,7 @@ function openEnumPopover(region) {
   const coords = view.coordsAtPos(region.from);
   if (!coords) return;
 
+  view.dispatch({ selection: codeMirrorEditorSelection.cursor(region.from) });
   activeEnum.value = {
     control: region.control,
     label: getEnumRegionLabel(region),
@@ -345,6 +350,8 @@ function openRegionAtSelection() {
 onMounted(async () => {
   const [{ EditorState, Compartment, EditorSelection }, { EditorView, Decoration, keymap }] =
     await Promise.all([import('@codemirror/state'), import('@codemirror/view')]);
+
+  if (unmounted || !editorElement.value) return;
 
   regionCompartment = new Compartment();
   syntaxCompartment = new Compartment();
@@ -478,6 +485,7 @@ watch(
 );
 
 onBeforeUnmount(() => {
+  unmounted = true;
   highlightSequence += 1;
   view?.destroy();
   view = undefined;

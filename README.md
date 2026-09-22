@@ -37,6 +37,10 @@ and leave the base directory unset. The repository configuration installs the lo
 with Bun 1.4.2, runs the package and documentation build, and publishes
 `docs/.vitepress/dist`. No deployment secrets are required.
 
+Package releases use npm trusted publishing. Configure the package's GitHub trusted publisher for
+`tanaabased/component-playground` and workflow `release.yml` before releasing. The
+`TANAAB_NPM_DEPLOY` secret is used only to update the `edge` dist-tag after a stable release.
+
 ## Package boundary
 
 The package exports the `ComponentPlayground` Vue component and an optional structural stylesheet:

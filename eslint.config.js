@@ -15,7 +15,13 @@ const restrictedBuiltinImports = builtinModules
   }));
 
 export default defineConfig([
-  globalIgnores(['**/node_modules/**', '**/dist/**', '**/coverage/**', '**/temp/**']),
+  globalIgnores([
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/coverage/**',
+    '**/temp/**',
+    '**/.vitepress/cache/**',
+  ]),
   js.configs.recommended,
   prettierConfig,
   {
