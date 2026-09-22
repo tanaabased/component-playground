@@ -13,11 +13,13 @@ bun run lint
 bun run test
 bun run build
 bun run test:package
+bun run dev:docs
 ```
 
 `test:package` builds the package, packs it, installs that exact tarball into the plain Vue example,
 and runs the example's production build. It requires Node 26 because the current Vite toolchain is
-part of the consumer check.
+part of the consumer check. `build` produces both the package and the stock-theme VitePress site;
+`dev:docs` builds the local package first so the site exercises its public exports.
 
 ## Package boundary
 
@@ -40,5 +42,6 @@ is useful:
 ```
 
 The stylesheet intentionally provides only layout, overflow, focus, and popover behavior. Typography
-and color inherit from the consuming application. VitePress documentation, public theming hooks, and
-publication are separate follow-up work.
+and color inherit from the consuming application. The [guide](docs/guide/index.md), [live capability
+examples](docs/examples.md), and [schema reference](docs/reference.md) document the proof of concept.
+Public theming hooks and publication remain separate work.
