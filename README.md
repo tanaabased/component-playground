@@ -3,6 +3,12 @@
 A small Vue 3 component for building schema-driven, interactive component examples without a
 VitePress or Tanaab runtime dependency.
 
+## Install
+
+```sh
+npm install @tanaab/component-playground
+```
+
 ## Development
 
 Use Bun 1.4.2 and Node 26:
@@ -44,4 +50,4 @@ is useful:
 The stylesheet intentionally provides only layout, overflow, focus, and popover behavior. Typography
 and color inherit from the consuming application. The [guide](docs/guide/index.md), [live capability
 examples](docs/examples.md), and [schema reference](docs/reference.md) document the proof of concept.
-Public theming hooks and publication remain separate work.
+Public theming hooks remain separate work.
