@@ -3,12 +3,12 @@ import { flushPromises, mount } from '@vue/test-utils';
 import { defineComponent, markRaw, nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 
-import ComponentPlayground from '../../components/ComponentPlayground.vue';
-import ShowcaseCard from '../../docs/components/ShowcaseCard.vue';
-import ShowcaseItem from '../../docs/components/ShowcaseItem.vue';
-import ShowcaseList from '../../docs/components/ShowcaseList.vue';
-import ShowcaseStack from '../../docs/components/ShowcaseStack.vue';
-import { createPlaygroundState, generateComponentUsage } from '../../utils/codegen.js';
+import ComponentPlayground from '../components/ComponentPlayground.vue';
+import ShowcaseCard from '../docs/components/ShowcaseCard.vue';
+import ShowcaseItem from '../docs/components/ShowcaseItem.vue';
+import ShowcaseList from '../docs/components/ShowcaseList.vue';
+import ShowcaseStack from '../docs/components/ShowcaseStack.vue';
+import { createPlaygroundState, generateComponentUsage } from '../utils/codegen.js';
 
 const BooleanPreview = defineComponent({
   props: {
@@ -130,11 +130,9 @@ async function mountPlayground({ component, schema, ...props }) {
     },
   });
 
-  for (let attempt = 0; attempt < 4 && !wrapper.find('.cm-editor').exists(); attempt += 1) {
-    await settle();
-  }
-
-  expect(wrapper.find('[aria-label="Editable component usage code"]').exists()).toBe(true);
+  await vi.waitFor(() => {
+    expect(wrapper.find('[aria-label="Editable component usage code"]').exists()).toBe(true);
+  });
   return wrapper;
 }
 

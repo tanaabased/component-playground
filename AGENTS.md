@@ -3,8 +3,9 @@
 Use the versions declared in `.bun-version` and `.node-version`. Install dependencies with
 `bun install --frozen-lockfile --ignore-scripts`.
 
-Mocha specs live in `test/**/*.spec.js`. Vue interaction tests live in
-`test/components/**/*.test.js` and use Vitest, Vue Test Utils, and jsdom. Run:
+Mocha unit specs live in `test/*.spec.js`. Vue interaction tests live in `test/*.test.js` and use
+Vitest, Vue Test Utils, and jsdom. Keep this test directory flat and use the suffixes to isolate
+runner discovery. Run:
 
 - `bun run test` for both suites.
 - `bun run test:unit` for Mocha only.

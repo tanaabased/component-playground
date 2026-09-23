@@ -83,7 +83,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['test/components/**/*.{js,mjs}'],
+    files: ['test/*.test.{js,mjs}', 'test/component-test-setup.{js,mjs}'],
     languageOptions: {
       globals: globals.browser,
     },

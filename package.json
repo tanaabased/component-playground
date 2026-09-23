@@ -37,7 +37,7 @@
     "format:write": "bun run --bun prettier . --write --ignore-unknown",
     "lint": "bun run lint:eslint && bun run format:check",
     "test": "bun run test:unit && bun run test:components",
-    "test:unit": "bun run --bun mocha \"test/**/*.spec.js\"",
+    "test:unit": "bun run --bun mocha \"test/*.spec.js\"",
     "test:components": "node ./node_modules/vitest/vitest.mjs run",
     "test:components:watch": "node ./node_modules/vitest/vitest.mjs",
     "test:package": "bun run build:package && node scripts/test-package-task.js"
