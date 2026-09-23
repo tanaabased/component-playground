@@ -82,5 +82,11 @@ export default defineConfig([
       globals: globals.mocha,
     },
   },
+  {
+    files: ['test/components/**/*.{js,mjs}'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+  },
   prettierConfig,
 ]);
