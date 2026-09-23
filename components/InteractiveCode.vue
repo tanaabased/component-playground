@@ -43,37 +43,54 @@
 </template>
 
 <script>
-const shikiThemes = {
-  light: 'github-light',
-  dark: 'github-dark',
+const defaultSyntaxThemes = {
+  light: () => import('shiki/themes/github-light.mjs'),
+  dark: () => import('shiki/themes/github-dark.mjs'),
 };
 
 let shikiHighlighterPromise;
+const shikiThemePromises = new WeakMap();
 
 function getShikiHighlighter() {
   shikiHighlighterPromise ??= Promise.all([
     import('shiki/core'),
     import('shiki/engine/javascript'),
     import('shiki/langs/html.mjs'),
-    import('shiki/themes/github-light.mjs'),
-    import('shiki/themes/github-dark.mjs'),
-  ]).then(
-    ([
-      { createHighlighterCore },
-      { createJavaScriptRegexEngine },
-      html,
-      githubLight,
-      githubDark,
-    ]) => {
-      return createHighlighterCore({
-        themes: [githubLight.default, githubDark.default],
-        langs: [html.default],
-        engine: createJavaScriptRegexEngine(),
-      });
-    },
-  );
+  ]).then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, html]) => {
+    return createHighlighterCore({
+      themes: [],
+      langs: [html.default],
+      engine: createJavaScriptRegexEngine(),
+    });
+  });
 
   return shikiHighlighterPromise;
+}
+
+function resolveThemeRegistration(themeInput) {
+  const registration = typeof themeInput === 'function' ? themeInput() : themeInput;
+
+  return Promise.resolve(registration).then((theme) => theme?.default ?? theme);
+}
+
+function loadShikiTheme(highlighter, themeInput) {
+  let promise = shikiThemePromises.get(themeInput);
+
+  if (!promise) {
+    promise = resolveThemeRegistration(themeInput).then(async (theme) => {
+      if (!theme?.name) throw new Error('Shiki theme registrations require a name.');
+
+      if (!highlighter.getLoadedThemes().includes(theme.name)) {
+        await highlighter.loadTheme(theme);
+      }
+
+      return theme.name;
+    });
+    shikiThemePromises.set(themeInput, promise);
+    promise.catch(() => shikiThemePromises.delete(themeInput));
+  }
+
+  return promise;
 }
 </script>
 
@@ -94,6 +111,16 @@ const props = defineProps({
   appearance: {
     type: String,
     default: 'auto',
+  },
+  syntaxThemes: {
+    type: Object,
+    default: null,
+    validator: (value) => {
+      return ['light', 'dark'].every((variant) => {
+        const theme = value?.[variant];
+        return typeof theme === 'function' || (theme && typeof theme === 'object');
+      });
+    },
   },
 });
 
@@ -311,12 +338,20 @@ async function refreshSyntaxDecorations(code) {
 
   try {
     const highlighter = await getShikiHighlighter();
+    const themes = props.syntaxThemes ?? defaultSyntaxThemes;
+    const [lightTheme, darkTheme] = await Promise.all([
+      loadShikiTheme(highlighter, themes.light),
+      loadShikiTheme(highlighter, themes.dark),
+    ]);
 
     if (sequence !== highlightSequence || !view || !syntaxCompartment) return;
 
     const tokenLines = highlighter.codeToTokensWithThemes(code, {
       lang: 'html',
-      themes: shikiThemes,
+      themes: {
+        light: lightTheme,
+        dark: darkTheme,
+      },
       defaultColor: false,
     });
 
@@ -490,6 +525,15 @@ watch(
     });
     suppressUpdate = false;
     void refreshSyntaxDecorations(code);
+  },
+);
+
+watch(
+  () => [props.syntaxThemes?.light, props.syntaxThemes?.dark],
+  () => {
+    if (!view) return;
+
+    void refreshSyntaxDecorations(view.state.doc.toString());
   },
 );
 

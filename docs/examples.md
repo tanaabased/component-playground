@@ -1,9 +1,11 @@
 <script setup>
+import { computed, ref } from 'vue';
+
 import ShowcaseCard from './components/ShowcaseCard.vue';
 import ShowcaseItem from './components/ShowcaseItem.vue';
 import ShowcaseList from './components/ShowcaseList.vue';
 import ShowcaseStack from './components/ShowcaseStack.vue';
-import { ref } from 'vue';
+import { syntaxThemePairs } from './syntax-themes.js';
 
 const sourceBase =
   'https://github.com/tanaabased/component-playground/blob/main/docs/components';
@@ -128,6 +130,9 @@ const eventInitialState = {
 
 const copiedUsage = ref('Nothing copied yet.');
 const observedState = ref(null);
+const selectedAppearance = ref('light');
+const selectedSyntaxThemePair = ref('github');
+const selectedSyntaxThemes = computed(() => syntaxThemePairs[selectedSyntaxThemePair.value]);
 
 function recordCopy(usage) {
   copiedUsage.value = usage;
@@ -145,20 +150,38 @@ toggle when clicked. Copy returns ordinary component usage without playground-on
 
 ## Props, slots, and standalone styles
 
-These playgrounds use the same component and schema. The first leaves `appearance` and every CSS
-variable at their package defaults. The second fixes the chrome to dark mode and applies a
-Tanaab-flavored set of instance variables. Edit either example and open its `tone` selector: the
-floating menu should match its owning playground rather than inheriting the other instance's styles.
-Together they also cover string, number, enum, and boolean props; a default text slot; and named text
-and HTML slots.
+These playgrounds use the same component and schema. The first exposes syntax-theme and appearance
+selectors while leaving every CSS variable at its package default. The second fixes the chrome to
+dark mode and applies a Tanaab-flavored set of instance variables. Edit either example and open its
+`tone` selector: the floating menu should match its owning playground rather than inheriting the
+other instance's styles. Together they also cover string, number, enum, and boolean props; a default
+text slot; and named text and HTML slots.
 
 <div class="playground-style-comparison">
   <section>
     <h3>Package defaults</h3>
+    <div class="playground-settings">
+      <label>
+        Syntax theme pair
+        <select v-model="selectedSyntaxThemePair">
+          <option value="github">GitHub</option>
+          <option value="vitesse">Vitesse</option>
+        </select>
+      </label>
+      <label>
+        Appearance
+        <select v-model="selectedAppearance">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </label>
+    </div>
     <ComponentPlayground
+      :appearance="selectedAppearance"
       :component="ShowcaseCard"
       :schema="cardSchema"
       :source="`${sourceBase}/ShowcaseCard.vue`"
+      :syntax-themes="selectedSyntaxThemes"
     />
   </section>
   <section>
@@ -172,6 +195,13 @@ and HTML slots.
     />
   </section>
 </div>
+
+::: tip Try it
+In **Package defaults**, edit a value, choose another syntax theme pair, switch appearance, and copy
+the code. The edit, component preview, and copied component usage should remain intact. Only the code
+tokens change with the syntax pair; playground chrome remains governed by appearance and CSS
+variables. The neighboring playground keeps its own syntax pair.
+:::
 
 The customized instance is ordinary Vue; no theme provider or global stylesheet is involved:
 
@@ -254,6 +284,18 @@ ignore the observed state as the consuming application requires.
 .playground-style-comparison h3 {
   min-width: 0;
   margin-top: 0;
+}
+
+.playground-settings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.playground-settings label {
+  display: grid;
+  gap: 0.25rem;
 }
 
 @media (max-width: 720px) {

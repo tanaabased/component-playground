@@ -56,6 +56,7 @@ URL when a source link is useful, or omit `source` when it is not.
 | `initial-state` | No       | Initial `controls`, `props`, and `slots` values that override schema defaults.     |
 | `preview-fit`   | No       | `full` (the default) or `contained` for a bounded preview area.                    |
 | `appearance`    | No       | `auto` (default), `light`, or `dark` for the playground chrome and enum menus.     |
+| `syntax-themes` | No       | A light/dark pair of Shiki theme registrations or lazy registration loaders.       |
 
 The playground does not receive Vue slots of its own. Instead, describe the preview component's
 slots in `schema.slots`; `text` values are escaped, while `html` values render as trusted HTML.
@@ -87,6 +88,32 @@ ancestor for local customization:
 The variables style playground controls and code, not the demonstrated component. Enum menus are
 teleported to `body`, but copy their owning instance's resolved variables when opened. See the
 [styling contract](/reference#styling-contract) for the complete variable table.
+
+## Syntax highlighting
+
+The default `github-light` and `github-dark` pair loads lazily when `syntax-themes` is omitted. To use
+another pair, import only those theme registrations and pass them to the playground:
+
+```vue
+<script setup>
+import vitesseDark from 'shiki/themes/vitesse-dark.mjs';
+import vitesseLight from 'shiki/themes/vitesse-light.mjs';
+
+const syntaxThemes = {
+  light: vitesseLight,
+  dark: vitesseDark,
+};
+</script>
+
+<template>
+  <ComponentPlayground :component="ExampleButton" :schema="schema" :syntax-themes="syntaxThemes" />
+</template>
+```
+
+Theme registrations use Shiki's ordinary `{ light, dark }` shape, so one exported pair can also feed
+a compatible Markdown renderer such as VitePress's `markdown.theme`. Exact theme imports keep the
+consumer bundle bounded to the selected pair; importing Shiki's complete theme registry is neither
+required nor recommended.
 
 ## State, reset, and events
 

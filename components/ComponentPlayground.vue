@@ -58,6 +58,7 @@
           :appearance="resolvedAppearance"
           :code="generated.code"
           :regions="generated.regions"
+          :syntax-themes="props.syntaxThemes"
           @select-enum="selectEnum"
           @toggle-boolean="toggleBoolean"
           @update-region="updateRegion"
@@ -126,6 +127,16 @@ const props = defineProps({
     type: String,
     default: 'auto',
     validator: (value) => ['auto', 'light', 'dark'].includes(value),
+  },
+  syntaxThemes: {
+    type: Object,
+    default: null,
+    validator: (value) => {
+      return ['light', 'dark'].every((variant) => {
+        const theme = value?.[variant];
+        return typeof theme === 'function' || (theme && typeof theme === 'object');
+      });
+    },
   },
 });
 

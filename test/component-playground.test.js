@@ -1,5 +1,9 @@
 import { EditorView } from '@codemirror/view';
 import { flushPromises, mount } from '@vue/test-utils';
+import githubDark from 'shiki/themes/github-dark.mjs';
+import githubLight from 'shiki/themes/github-light.mjs';
+import vitesseDark from 'shiki/themes/vitesse-dark.mjs';
+import vitesseLight from 'shiki/themes/vitesse-light.mjs';
 import { defineComponent, markRaw, nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -114,6 +118,11 @@ const stackSchema = {
   },
 };
 
+const contrastingSyntaxThemes = {
+  light: vitesseLight,
+  dark: vitesseDark,
+};
+
 async function settle() {
   await nextTick();
   await flushPromises();
@@ -138,6 +147,31 @@ async function mountPlayground({ component, schema, ...props }) {
 
 function editorView(wrapper) {
   return EditorView.findFromDOM(wrapper.get('.cm-editor').element);
+}
+
+function tokenStyles(wrapper) {
+  return wrapper
+    .findAll('.component-playground-code__token')
+    .map((token) => token.attributes('style'));
+}
+
+async function waitForTokenStyles(wrapper) {
+  await vi.waitFor(() => {
+    expect(tokenStyles(wrapper).length).toBeGreaterThan(0);
+  });
+
+  return tokenStyles(wrapper);
+}
+
+function deferred() {
+  let resolve;
+  let reject;
+  const promise = new Promise((promiseResolve, promiseReject) => {
+    resolve = promiseResolve;
+    reject = promiseReject;
+  });
+
+  return { promise, reject, resolve };
 }
 
 function latestState(wrapper, schema) {
@@ -239,6 +273,7 @@ describe('ComponentPlayground', () => {
     await activateWithKeyboard(wrapper, visible);
 
     expect(wrapper.find('.component-playground__preview article').exists()).toBe(false);
+    expect(wrapper.find('.component-playground-code__region--inactive').exists()).toBe(true);
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
@@ -388,6 +423,145 @@ describe('ComponentPlayground', () => {
         .state.doc.toString()
         .match(/<ShowcaseItem/g),
     ).toHaveLength(3);
+  });
+
+  it('uses the default syntax pair and changes token themes without losing playground state', async () => {
+    const wrapper = await mountPlayground({
+      component: ShowcaseCard,
+      schema: cardSchema,
+    });
+    const defaultStyles = await waitForTokenStyles(wrapper);
+
+    expect(
+      defaultStyles.some((style) => style.includes('--component-playground-token-light')),
+    ).toBe(true);
+    expect(defaultStyles.some((style) => style.includes('--component-playground-token-dark'))).toBe(
+      true,
+    );
+
+    await editRegion(
+      wrapper,
+      cardSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'count',
+      '9',
+    );
+    const editedCode = editorView(wrapper).state.doc.toString();
+    expect(wrapper.get('article footer').text()).toContain('9 items');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copiedCode = wrapper.emitted('copy').at(-1)[0];
+    vi.runAllTimers();
+    vi.useRealTimers();
+
+    const editedStyles = tokenStyles(wrapper);
+    await wrapper.setProps({
+      appearance: 'dark',
+      syntaxThemes: contrastingSyntaxThemes,
+    });
+    await vi.waitFor(() => {
+      expect(tokenStyles(wrapper)).not.toEqual(editedStyles);
+    });
+
+    expect(wrapper.get('.component-playground').attributes('data-appearance')).toBe('dark');
+    expect(editorView(wrapper).state.doc.toString()).toBe(editedCode);
+    expect(wrapper.get('article footer').text()).toContain('9 items');
+    expect(
+      wrapper.findAll('.component-playground-code__token').some((token) => token.text() === '9'),
+    ).toBe(true);
+    expect(wrapper.find('.component-playground-code__region').exists()).toBe(true);
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    expect(wrapper.emitted('copy').at(-1)[0]).toBe(copiedCode);
+    vi.runAllTimers();
+    vi.useRealTimers();
+  });
+
+  it('keeps syntax theme choices independent between playground instances', async () => {
+    const defaultWrapper = await mountPlayground({
+      component: ShowcaseCard,
+      schema: cardSchema,
+    });
+    const contrastingWrapper = await mountPlayground({
+      component: ShowcaseCard,
+      schema: cardSchema,
+      syntaxThemes: contrastingSyntaxThemes,
+    });
+
+    const defaultStyles = await waitForTokenStyles(defaultWrapper);
+    const contrastingStyles = await waitForTokenStyles(contrastingWrapper);
+
+    expect(contrastingStyles).not.toEqual(defaultStyles);
+
+    await contrastingWrapper.setProps({
+      syntaxThemes: {
+        light: githubLight,
+        dark: githubDark,
+      },
+    });
+    await vi.waitFor(() => {
+      expect(tokenStyles(contrastingWrapper)).toEqual(defaultStyles);
+    });
+    expect(tokenStyles(defaultWrapper)).toEqual(defaultStyles);
+  });
+
+  it('ignores stale asynchronous themes after a newer pair finishes loading', async () => {
+    const staleLight = deferred();
+    const staleDark = deferred();
+    const currentLight = deferred();
+    const currentDark = deferred();
+    const wrapper = await mountPlayground({
+      component: ShowcaseCard,
+      schema: cardSchema,
+      syntaxThemes: {
+        light: () => staleLight.promise,
+        dark: () => staleDark.promise,
+      },
+    });
+
+    await wrapper.setProps({
+      syntaxThemes: {
+        light: () => currentLight.promise,
+        dark: () => currentDark.promise,
+      },
+    });
+    currentLight.resolve(vitesseLight);
+    currentDark.resolve(vitesseDark);
+    const currentStyles = await waitForTokenStyles(wrapper);
+
+    staleLight.resolve(githubLight);
+    staleDark.resolve(githubDark);
+    await settle();
+
+    expect(tokenStyles(wrapper)).toEqual(currentStyles);
+  });
+
+  it('keeps failed theme loads readable and editable', async () => {
+    const wrapper = await mountPlayground({
+      component: ShowcaseCard,
+      schema: cardSchema,
+      syntaxThemes: {
+        light: () => Promise.reject(new Error('light theme unavailable')),
+        dark: () => Promise.reject(new Error('dark theme unavailable')),
+      },
+    });
+    await settle();
+
+    expect(tokenStyles(wrapper)).toHaveLength(0);
+    expect(editorView(wrapper).state.doc.toString()).toContain('<ShowcaseCard');
+
+    await editRegion(
+      wrapper,
+      cardSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'count',
+      '12',
+    );
+
+    expect(wrapper.get('article footer').text()).toContain('12 items');
+    expect(editorView(wrapper).state.doc.toString()).toContain(':count="12"');
   });
 
   it('cleans up an editor unmounted before asynchronous setup finishes', async () => {
