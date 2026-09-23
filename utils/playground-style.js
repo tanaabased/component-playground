@@ -34,5 +34,5 @@ export function createFloatingPlaygroundStyle(computedStyle) {
 }
 
 export function getFloatingPlaygroundStyle(element) {
-  return createFloatingPlaygroundStyle(window.getComputedStyle(element));
+  return createFloatingPlaygroundStyle(globalThis.getComputedStyle(element));
 }

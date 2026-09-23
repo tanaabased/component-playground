@@ -19,5 +19,5 @@ features:
   - title: Preview the result
     details: The same state drives the rendered Vue component and the copyable markup.
   - title: Bring the host styles
-    details: Structural package CSS stays deliberately sparse and inherits typography and color.
+    details: Standalone defaults work anywhere; appearance modes and CSS variables adapt each instance.
 ---
