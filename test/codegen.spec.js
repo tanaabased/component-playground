@@ -234,7 +234,7 @@ describe('utils/codegen', () => {
       (region) => region.kind === 'boolean-prop' && region.prop === 'enabled',
     );
 
-    assert.match(generated.code, /\n  enabled\n\/>/);
+    assert.match(generated.code, /\n {2}enabled\n\/>/);
     assert.match(generated.copyCode, /:enabled="false"/);
     assert.equal(inactiveRegion.active, false);
     assert.equal(getPreviewProps(schema, state).enabled, false);
@@ -243,8 +243,8 @@ describe('utils/codegen', () => {
     state.props.enabled = true;
     const enabled = generateComponentUsage(schema, state);
 
-    assert.match(enabled.code, /\n  enabled\n\/>/);
-    assert.match(enabled.copyCode, /\n  enabled\n\/>/);
+    assert.match(enabled.code, /\n {2}enabled\n\/>/);
+    assert.match(enabled.copyCode, /\n {2}enabled\n\/>/);
     assert.equal(getPreviewProps(schema, state).enabled, true);
   });
 
@@ -264,7 +264,7 @@ describe('utils/codegen', () => {
       (region) => region.kind === 'boolean-prop' && region.prop === 'enabled',
     );
 
-    assert.match(generated.code, /\n  enabled\n\/>/);
+    assert.match(generated.code, /\n {2}enabled\n\/>/);
     assert.doesNotMatch(generated.copyCode, /enabled/);
     assert.equal(inactiveRegion.active, false);
     assert.equal(getPreviewProps(schema, state).enabled, false);
