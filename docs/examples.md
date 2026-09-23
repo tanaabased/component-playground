@@ -3,6 +3,7 @@ import ShowcaseCard from './components/ShowcaseCard.vue';
 import ShowcaseItem from './components/ShowcaseItem.vue';
 import ShowcaseList from './components/ShowcaseList.vue';
 import ShowcaseStack from './components/ShowcaseStack.vue';
+import { ref } from 'vue';
 
 const sourceBase =
   'https://github.com/tanaabased/component-playground/blob/main/docs/components';
@@ -97,6 +98,28 @@ const stackSchema = {
     },
   },
 };
+
+const eventInitialState = {
+  props: {
+    heading: 'State supplied by the host',
+    count: 7,
+    tone: 'accent',
+  },
+  slots: {
+    default: 'This value survives reset because it is part of initial state.',
+  },
+};
+
+const copiedUsage = ref('Nothing copied yet.');
+const observedState = ref(null);
+
+function recordCopy(usage) {
+  copiedUsage.value = usage;
+}
+
+function recordState(state) {
+  observedState.value = state;
+}
 </script>
 
 # Capability examples
@@ -141,3 +164,29 @@ the count from the editable `columns` prop.
 
 Use **reset** beneath any example to restore its schema defaults. Each **source** link is supplied by
 the page rather than inferred by the package.
+
+## Events and initial state
+
+This example starts from host-supplied state rather than `cardSchema` defaults. Edit it, then use
+**reset** to restore those supplied values. The panels below show the `copy` string and latest
+`update:state` payload, which makes the integration observable without ceremonial guesswork.
+
+<ComponentPlayground
+:component="ShowcaseCard"
+:schema="cardSchema"
+:initial-state="eventInitialState"
+:source="`${sourceBase}/ShowcaseCard.vue`"
+@copy="recordCopy"
+@update:state="recordState"
+/>
+
+### Latest `copy` payload
+
+<pre><code>{{ copiedUsage }}</code></pre>
+
+### Latest `update:state` payload
+
+<pre><code>{{ JSON.stringify(observedState, null, 2) }}</code></pre>
+
+The package exposes these events but does not own the host's persistence policy: store, inspect, or
+ignore the observed state as the consuming application requires.
