@@ -55,10 +55,38 @@ URL when a source link is useful, or omit `source` when it is not.
 | `source`        | No       | An explicit URL for the **source** link. It replaces theme-aware source inference. |
 | `initial-state` | No       | Initial `controls`, `props`, and `slots` values that override schema defaults.     |
 | `preview-fit`   | No       | `full` (the default) or `contained` for a bounded preview area.                    |
+| `appearance`    | No       | `auto` (default), `light`, or `dark` for the playground chrome and enum menus.     |
 
 The playground does not receive Vue slots of its own. Instead, describe the preview component's
 slots in `schema.slots`; `text` values are escaped, while `html` values render as trusted HTML.
 The schema reference documents [all supported prop and slot shapes](/reference#schema-shape).
+
+## Appearance and customization
+
+`auto` follows the operating system's `prefers-color-scheme` setting. Use an explicit appearance
+when the surrounding surface already has a fixed mode, then set CSS variables on the instance or an
+ancestor for local customization:
+
+```vue
+<ComponentPlayground
+  appearance="dark"
+  class="product-playground"
+  :component="ExampleButton"
+  :schema="schema"
+/>
+
+<style>
+.product-playground {
+  --component-playground-accent-color: #8be9fd;
+  --component-playground-focus-color: #f1fa8c;
+  --component-playground-border-radius: 0.75rem;
+}
+</style>
+```
+
+The variables style playground controls and code, not the demonstrated component. Enum menus are
+teleported to `body`, but copy their owning instance's resolved variables when opened. See the
+[styling contract](/reference#styling-contract) for the complete variable table.
 
 ## State, reset, and events
 

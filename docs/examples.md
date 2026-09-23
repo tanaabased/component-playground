@@ -8,6 +8,22 @@ import { ref } from 'vue';
 const sourceBase =
   'https://github.com/tanaabased/component-playground/blob/main/docs/components';
 
+const tanaabPlaygroundStyle = {
+  '--component-playground-background-color': '#071a1e',
+  '--component-playground-foreground-color': '#e7fff8',
+  '--component-playground-muted-color': '#9cc8be',
+  '--component-playground-border-color': '#176b5a',
+  '--component-playground-accent-color': '#00c88a',
+  '--component-playground-hover-background-color': '#0d332f',
+  '--component-playground-active-background-color': '#12523f',
+  '--component-playground-focus-color': '#db2777',
+  '--component-playground-font-family': 'Inter, ui-sans-serif, system-ui, sans-serif',
+  '--component-playground-monospace-font-family':
+    'Berkeley Mono, ui-monospace, SFMono-Regular, Consolas, monospace',
+  '--component-playground-border-radius': '0.75rem',
+  '--component-playground-control-padding-inline': '0.75rem',
+};
+
 const cardSchema = {
   name: 'ShowcaseCard',
   props: {
@@ -127,16 +143,51 @@ function recordState(state) {
 Edit the underlined values in each code block. Enum values open a small selector; boolean attributes
 toggle when clicked. Copy returns ordinary component usage without playground-only controls.
 
-## Props and text or HTML slots
+## Props, slots, and standalone styles
 
-This full-width preview covers string, number, enum, and boolean props; a default text slot; and
-named text and HTML slots.
+These playgrounds use the same component and schema. The first leaves `appearance` and every CSS
+variable at their package defaults. The second fixes the chrome to dark mode and applies a
+Tanaab-flavored set of instance variables. Edit either example and open its `tone` selector: the
+floating menu should match its owning playground rather than inheriting the other instance's styles.
+Together they also cover string, number, enum, and boolean props; a default text slot; and named text
+and HTML slots.
 
+<div class="playground-style-comparison">
+  <section>
+    <h3>Package defaults</h3>
+    <ComponentPlayground
+      :component="ShowcaseCard"
+      :schema="cardSchema"
+      :source="`${sourceBase}/ShowcaseCard.vue`"
+    />
+  </section>
+  <section>
+    <h3>Tanaab-flavored override</h3>
+    <ComponentPlayground
+      :component="ShowcaseCard"
+      :schema="cardSchema"
+      :source="`${sourceBase}/ShowcaseCard.vue`"
+      :style="tanaabPlaygroundStyle"
+      appearance="dark"
+    />
+  </section>
+</div>
+
+The customized instance is ordinary Vue; no theme provider or global stylesheet is involved:
+
+```vue
 <ComponentPlayground
-  :component="ShowcaseCard"
-  :schema="cardSchema"
-  :source="`${sourceBase}/ShowcaseCard.vue`"
+  appearance="dark"
+  :style="{
+    '--component-playground-background-color': '#071a1e',
+    '--component-playground-foreground-color': '#e7fff8',
+    '--component-playground-border-color': '#176b5a',
+    '--component-playground-accent-color': '#00c88a',
+    '--component-playground-focus-color': '#db2777',
+    '--component-playground-border-radius': '0.75rem',
+  }"
 />
+```
 
 ## Object arrays and demonstration controls
 
@@ -190,3 +241,24 @@ This example starts from host-supplied state rather than `cardSchema` defaults. 
 
 The package exposes these events but does not own the host's persistence policy: store, inspect, or
 ignore the observed state as the consuming application requires.
+
+<style scoped>
+.playground-style-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.playground-style-comparison section,
+.playground-style-comparison h3 {
+  min-width: 0;
+  margin-top: 0;
+}
+
+@media (max-width: 720px) {
+  .playground-style-comparison {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+</style>

@@ -1,5 +1,9 @@
 <template>
-  <div class="component-playground" :data-preview-fit="resolvedPreviewFit">
+  <div
+    class="component-playground"
+    :data-appearance="resolvedAppearance"
+    :data-preview-fit="resolvedPreviewFit"
+  >
     <div class="component-playground__preview" aria-label="Component preview">
       <div class="component-playground__preview-inner">
         <component :is="props.component" v-if="hasPreviewSlots" v-bind="previewProps">
@@ -51,6 +55,7 @@
         </button>
 
         <InteractiveCode
+          :appearance="resolvedAppearance"
           :code="generated.code"
           :regions="generated.regions"
           @select-enum="selectEnum"
@@ -93,6 +98,7 @@ import {
   getRepeatSlotItems,
   setNestedValue,
 } from '../utils/codegen.js';
+import { resolvePlaygroundAppearance } from '../utils/playground-style.js';
 
 const props = defineProps({
   component: {
@@ -116,6 +122,11 @@ const props = defineProps({
     default: 'full',
     validator: (value) => ['full', 'contained'].includes(value),
   },
+  appearance: {
+    type: String,
+    default: 'auto',
+    validator: (value) => ['auto', 'light', 'dark'].includes(value),
+  },
 });
 
 const emit = defineEmits(['copy', 'update:state']);
@@ -125,6 +136,7 @@ const state = reactive(createPlaygroundState(props.schema, props.initialState));
 
 const generated = computed(() => generateComponentUsage(props.schema, state));
 const previewProps = computed(() => getPreviewProps(props.schema, state));
+const resolvedAppearance = computed(() => resolvePlaygroundAppearance(props.appearance));
 const resolvedPreviewFit = computed(() => {
   return props.previewFit === 'contained' ? 'contained' : 'full';
 });
@@ -272,10 +284,8 @@ async function copyCode() {
 <style scoped>
 .component-playground {
   display: grid;
-  gap: 1rem;
+  gap: var(--component-playground-gap, 1rem);
   min-width: 0;
-  color: inherit;
-  font: inherit;
 }
 
 .component-playground__preview {
@@ -313,23 +323,111 @@ async function copyCode() {
 }
 
 .component-playground__code-area {
+  --_component-playground-default-background-color: #f6f8fa;
+  --_component-playground-default-foreground-color: #1f2328;
+  --_component-playground-default-muted-color: #59636e;
+  --_component-playground-default-border-color: #d1d9e0;
+  --_component-playground-default-accent-color: #0969da;
+  --_component-playground-default-hover-background-color: #d8dee4;
+  --_component-playground-default-active-background-color: #b6d6ff;
+  --_component-playground-default-focus-color: #0969da;
+  --_component-playground-background-color: var(
+    --component-playground-background-color,
+    var(--_component-playground-default-background-color)
+  );
+  --_component-playground-foreground-color: var(
+    --component-playground-foreground-color,
+    var(--_component-playground-default-foreground-color)
+  );
+  --_component-playground-muted-color: var(
+    --component-playground-muted-color,
+    var(--_component-playground-default-muted-color)
+  );
+  --_component-playground-border-color: var(
+    --component-playground-border-color,
+    var(--_component-playground-default-border-color)
+  );
+  --_component-playground-accent-color: var(
+    --component-playground-accent-color,
+    var(--_component-playground-default-accent-color)
+  );
+  --_component-playground-hover-background-color: var(
+    --component-playground-hover-background-color,
+    var(--_component-playground-default-hover-background-color)
+  );
+  --_component-playground-active-background-color: var(
+    --component-playground-active-background-color,
+    var(--_component-playground-default-active-background-color)
+  );
+  --_component-playground-focus-color: var(
+    --component-playground-focus-color,
+    var(--_component-playground-default-focus-color)
+  );
+  --_component-playground-font-family: var(
+    --component-playground-font-family,
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  --_component-playground-monospace-font-family: var(
+    --component-playground-monospace-font-family,
+    ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace
+  );
+  --_component-playground-font-size: var(--component-playground-font-size, 0.875rem);
+  --_component-playground-line-height: var(--component-playground-line-height, 1.5);
+  --_component-playground-control-padding-block: var(
+    --component-playground-control-padding-block,
+    0.35rem
+  );
+  --_component-playground-control-padding-inline: var(
+    --component-playground-control-padding-inline,
+    0.6rem
+  );
+  --_component-playground-border-width: var(--component-playground-border-width, 1px);
+  --_component-playground-border-style: var(--component-playground-border-style, solid);
+  --_component-playground-border-radius: var(--component-playground-border-radius, 0.375rem);
+  --_component-playground-focus-width: var(--component-playground-focus-width, 2px);
+
   display: grid;
-  gap: 0.25rem;
+  gap: var(--component-playground-actions-gap, 0.35rem);
   min-width: 0;
+  color: var(--_component-playground-foreground-color);
+  color-scheme: light;
+  font-family: var(--_component-playground-font-family);
+  font-size: var(--_component-playground-font-size);
+  line-height: var(--_component-playground-line-height);
+}
+
+.component-playground[data-appearance='dark'] .component-playground__code-area {
+  --_component-playground-default-background-color: #0d1117;
+  --_component-playground-default-foreground-color: #f0f6fc;
+  --_component-playground-default-muted-color: #9198a1;
+  --_component-playground-default-border-color: #3d444d;
+  --_component-playground-default-accent-color: #58a6ff;
+  --_component-playground-default-hover-background-color: #262c36;
+  --_component-playground-default-active-background-color: #1f4979;
+  --_component-playground-default-focus-color: #58a6ff;
+
+  color-scheme: dark;
 }
 
 .component-playground__code {
   position: relative;
   min-width: 0;
-  border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  border-radius: 0.25rem;
+  border-color: var(--_component-playground-border-color);
+  border-style: var(--_component-playground-border-style);
+  border-width: var(--_component-playground-border-width);
+  border-radius: var(--_component-playground-border-radius);
   overflow: hidden;
-  background: transparent;
+  background: var(--_component-playground-background-color);
 }
 
 .component-playground__code:focus-within {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--_component-playground-focus-width) solid var(--_component-playground-focus-color);
+  outline-offset: var(--_component-playground-focus-width);
 }
 
 .component-playground__copy {
@@ -337,28 +435,40 @@ async function copyCode() {
   top: 0.5rem;
   right: 0.5rem;
   z-index: 3;
-  padding: 0.25rem 0.5rem;
-  border: 1px solid currentColor;
-  border-radius: 0.25rem;
-  background: Canvas;
-  color: CanvasText;
+  padding: var(--_component-playground-control-padding-block)
+    var(--_component-playground-control-padding-inline);
+  border-color: var(--_component-playground-border-color);
+  border-style: var(--_component-playground-border-style);
+  border-width: var(--_component-playground-border-width);
+  border-radius: var(--_component-playground-border-radius);
+  background: var(--_component-playground-background-color);
+  color: var(--_component-playground-foreground-color);
   cursor: pointer;
   font: inherit;
-  font-size: 0.75rem;
+  font-size: 0.8125em;
+}
+
+.component-playground__copy:hover {
+  background: var(--_component-playground-hover-background-color);
+}
+
+.component-playground__copy:active {
+  background: var(--_component-playground-active-background-color);
 }
 
 .component-playground__copy:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--_component-playground-focus-width) solid var(--_component-playground-focus-color);
+  outline-offset: var(--_component-playground-focus-width);
 }
 
 .component-playground__links {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.35rem;
+  gap: var(--component-playground-actions-gap, 0.35rem);
   min-width: 0;
-  font-size: 0.75rem;
+  color: var(--_component-playground-muted-color);
+  font-size: 0.8125em;
 }
 
 .component-playground__action {
@@ -367,7 +477,7 @@ async function copyCode() {
   padding: 0;
   border: 0;
   background: transparent;
-  color: inherit;
+  color: var(--_component-playground-accent-color);
   cursor: pointer;
   font: inherit;
   text-decoration: underline;
@@ -375,8 +485,8 @@ async function copyCode() {
 }
 
 .component-playground__action:focus-visible {
-  outline: 2px solid currentColor;
-  outline-offset: 2px;
+  outline: var(--_component-playground-focus-width) solid var(--_component-playground-focus-color);
+  outline-offset: var(--_component-playground-focus-width);
 }
 
 .component-playground__separator {
@@ -385,5 +495,20 @@ async function copyCode() {
 
 .component-playground__code :deep(.component-playground-code) {
   min-width: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .component-playground[data-appearance='auto'] .component-playground__code-area {
+    --_component-playground-default-background-color: #0d1117;
+    --_component-playground-default-foreground-color: #f0f6fc;
+    --_component-playground-default-muted-color: #9198a1;
+    --_component-playground-default-border-color: #3d444d;
+    --_component-playground-default-accent-color: #58a6ff;
+    --_component-playground-default-hover-background-color: #262c36;
+    --_component-playground-default-active-background-color: #1f4979;
+    --_component-playground-default-focus-color: #58a6ff;
+
+    color-scheme: dark;
+  }
 }
 </style>

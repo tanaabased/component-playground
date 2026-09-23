@@ -43,7 +43,7 @@ Package releases use npm trusted publishing. Configure the package's GitHub trus
 
 ## Package boundary
 
-The package exports the `ComponentPlayground` Vue component and an optional structural stylesheet:
+The package exports the `ComponentPlayground` Vue component and its standalone stylesheet:
 
 ```js
 import { ComponentPlayground } from '@tanaab/component-playground';
@@ -61,7 +61,8 @@ is useful:
 />
 ```
 
-The stylesheet intentionally provides only layout, overflow, focus, and popover behavior. Typography
-and color inherit from the consuming application. The [guide](docs/guide/index.md), [live capability
-examples](docs/examples.md), and [schema reference](docs/reference.md) document the proof of concept.
-Public theming hooks remain separate work.
+The stylesheet provides usable light and dark defaults without a VitePress or Tanaab dependency.
+Use the `appearance` prop and the documented `--component-playground-*` variables to adapt each
+instance; floating enum menus retain their owning instance's values after teleporting to `body`.
+The [guide](docs/guide/index.md), [live capability examples](docs/examples.md), and [schema and styling
+reference](docs/reference.md) document the complete contract.

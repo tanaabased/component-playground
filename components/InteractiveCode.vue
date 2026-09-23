@@ -2,6 +2,7 @@
   <div
     ref="wrapperElement"
     class="component-playground-code"
+    :data-appearance="props.appearance"
     @focusout="handleWrapperFocusout"
     @keydown.esc="closeEnumPopover(true)"
   >
@@ -15,6 +16,7 @@
         v-if="activeEnum"
         ref="enumMenuElement"
         class="component-playground-code__enum-menu"
+        :data-appearance="props.appearance"
         :style="activeEnum.style"
         role="group"
         :aria-label="`Select ${activeEnum.label}`"
@@ -78,6 +80,8 @@ function getShikiHighlighter() {
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
+import { getFloatingPlaygroundStyle } from '../utils/playground-style.js';
+
 const props = defineProps({
   code: {
     type: String,
@@ -86,6 +90,10 @@ const props = defineProps({
   regions: {
     type: Array,
     default: () => [],
+  },
+  appearance: {
+    type: String,
+    default: 'auto',
   },
 });
 
@@ -221,7 +229,7 @@ function selectEnumValue(value) {
 }
 
 function openEnumPopover(region) {
-  if (!view) return;
+  if (!view || !wrapperElement.value) return;
 
   const coords = view.coordsAtPos(region.from);
   if (!coords) return;
@@ -235,6 +243,7 @@ function openEnumPopover(region) {
     value: getEnumRegionValue(region),
     options: region.options ?? [],
     style: {
+      ...getFloatingPlaygroundStyle(wrapperElement.value),
       top: `${Math.max(8, coords.bottom + 4)}px`,
       left: `${Math.max(8, coords.left)}px`,
     },
@@ -421,14 +430,14 @@ onMounted(async () => {
           '&': {
             backgroundColor: 'transparent',
             color: 'inherit',
-            fontSize: '0.875rem',
+            fontSize: 'var(--_component-playground-font-size)',
           },
           '.cm-content': {
-            fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
-            padding: '1rem',
+            fontFamily: 'var(--_component-playground-monospace-font-family)',
+            padding: 'var(--component-playground-code-padding, 1rem)',
           },
           '.cm-line': {
-            lineHeight: '1.5',
+            lineHeight: 'var(--_component-playground-line-height)',
           },
           '.cm-scroller': {
             overflow: 'auto',
@@ -496,7 +505,10 @@ onBeforeUnmount(() => {
 .component-playground-code {
   position: relative;
   min-width: 0;
-  color: inherit;
+  color: var(--_component-playground-foreground-color);
+  font-family: var(--_component-playground-monospace-font-family);
+  font-size: var(--_component-playground-font-size);
+  line-height: var(--_component-playground-line-height);
 }
 
 .component-playground-code__editor {
@@ -514,18 +526,17 @@ onBeforeUnmount(() => {
 
 .component-playground-code__fallback {
   min-width: 0;
-  padding: 1rem;
+  padding: var(--component-playground-code-padding, 1rem);
   margin: 0;
   overflow-x: auto;
   background: transparent;
-  color: inherit;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
+  color: var(--_component-playground-foreground-color);
+  font: inherit;
 }
 
 .component-playground-code :deep(.component-playground-code__region) {
-  border-bottom: 1px dotted currentColor;
+  border-bottom: var(--_component-playground-border-width) dotted
+    var(--_component-playground-accent-color);
   cursor: text;
 }
 
@@ -535,7 +546,7 @@ onBeforeUnmount(() => {
 }
 
 .component-playground-code :deep(.component-playground-code__region:hover) {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
+  background-color: var(--_component-playground-hover-background-color);
 }
 
 .component-playground-code :deep(.component-playground-code__region--inactive) {
@@ -556,19 +567,29 @@ onBeforeUnmount(() => {
   max-width: calc(100vw - 1rem);
   max-block-size: min(16rem, calc(100vh - 1rem));
   overflow-y: auto;
-  border: 1px solid CanvasText;
-  border-radius: 0.25rem;
-  background: Canvas;
-  color: CanvasText;
-  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  font-size: 0.8125rem;
-  line-height: 1.5;
+  border-color: var(--component-playground-border-color, #d1d9e0);
+  border-style: var(--component-playground-border-style, solid);
+  border-width: var(--component-playground-border-width, 1px);
+  border-radius: var(--component-playground-border-radius, 0.375rem);
+  background: var(--component-playground-background-color, #f6f8fa);
+  color: var(--component-playground-foreground-color, #1f2328);
+  color-scheme: light;
+  font-family: var(
+    --component-playground-monospace-font-family,
+    ui-monospace,
+    SFMono-Regular,
+    Consolas,
+    monospace
+  );
+  font-size: var(--component-playground-font-size, 0.875rem);
+  line-height: var(--component-playground-line-height, 1.5);
 }
 
 .component-playground-code__enum-option {
   display: block;
   width: 100%;
-  padding: 0.35rem 0.6rem;
+  padding: var(--component-playground-control-padding-block, 0.35rem)
+    var(--component-playground-control-padding-inline, 0.6rem);
   border: 0;
   background: transparent;
   color: inherit;
@@ -579,22 +600,42 @@ onBeforeUnmount(() => {
 
 .component-playground-code__enum-option:hover,
 .component-playground-code__enum-option:focus-visible {
-  background-color: color-mix(in srgb, currentColor 10%, transparent);
-  outline: 2px solid currentColor;
-  outline-offset: -2px;
+  background-color: var(--component-playground-hover-background-color, #d8dee4);
+}
+
+.component-playground-code__enum-option:focus-visible {
+  outline: var(--component-playground-focus-width, 2px) solid
+    var(--component-playground-focus-color, #0969da);
+  outline-offset: calc(-1 * var(--component-playground-focus-width, 2px));
 }
 
 .component-playground-code__enum-option--active {
+  background-color: var(--component-playground-active-background-color, #b6d6ff);
   text-decoration: underline;
   text-underline-offset: 0.18em;
 }
 
+.component-playground-code__enum-menu[data-appearance='dark'] {
+  color-scheme: dark;
+}
+
 @media (prefers-color-scheme: dark) {
-  .component-playground-code :deep(.component-playground-code__token) {
+  .component-playground-code[data-appearance='auto'] :deep(.component-playground-code__token) {
     color: var(
       --component-playground-token-dark,
       var(--component-playground-token-light, currentColor)
     );
   }
+
+  .component-playground-code__enum-menu[data-appearance='auto'] {
+    color-scheme: dark;
+  }
+}
+
+.component-playground-code[data-appearance='dark'] :deep(.component-playground-code__token) {
+  color: var(
+    --component-playground-token-dark,
+    var(--component-playground-token-light, currentColor)
+  );
 }
 </style>
