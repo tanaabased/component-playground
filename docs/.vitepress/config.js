@@ -23,6 +23,7 @@ export default defineConfig({
         items: [
           { text: 'Guide', link: '/guide/' },
           { text: 'Capability examples', link: '/examples' },
+          { text: 'Events and initial state', link: '/examples#events-and-initial-state' },
         ],
       },
       {

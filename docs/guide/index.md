@@ -41,6 +41,48 @@ const schema = {
 ```
 
 The source URL is explicit because the package cannot know where its consumer keeps source files.
+This deliberately replaces the original theme playground's automatic source-link inference: pass a
+URL when a source link is useful, or omit `source` when it is not.
+
+## Component API
+
+`ComponentPlayground` takes the following props:
+
+| Prop            | Required | Description                                                                        |
+| --------------- | -------- | ---------------------------------------------------------------------------------- |
+| `component`     | Yes      | The Vue component to render in the preview.                                        |
+| `schema`        | Yes      | The component name plus the props, slots, and optional controls to expose.         |
+| `source`        | No       | An explicit URL for the **source** link. It replaces theme-aware source inference. |
+| `initial-state` | No       | Initial `controls`, `props`, and `slots` values that override schema defaults.     |
+| `preview-fit`   | No       | `full` (the default) or `contained` for a bounded preview area.                    |
+
+The playground does not receive Vue slots of its own. Instead, describe the preview component's
+slots in `schema.slots`; `text` values are escaped, while `html` values render as trusted HTML.
+The schema reference documents [all supported prop and slot shapes](/reference#schema-shape).
+
+## State, reset, and events
+
+Schema defaults establish the starting state. `initial-state` can replace any declared control,
+prop, or slot value; an explicitly supplied object-array prop is retained instead of being replaced
+by a control-derived preset. **Reset** restores that same resolved initial state, not merely the
+bare schema defaults. Changing `schema` or `initial-state` also resets the playground.
+
+Listen for `update:state` to observe every edit, selection, boolean toggle, or control-driven
+update. Its payload has `{ controls, props, slots }`. **Copy** writes the clean component usage to
+the clipboard and emits the same string as `copy`.
+
+```vue
+<ComponentPlayground
+  :component="ExampleButton"
+  :schema="schema"
+  :initial-state="{ props: { label: 'Start here' } }"
+  @copy="(usage) => console.log('Copied:', usage)"
+  @update:state="(state) => console.log('Current state:', state)"
+/>
+```
+
+See the [live event and initial-state example](/examples#events-and-initial-state) and the
+[interaction reference](/reference#interaction-and-keyboard-behavior).
 
 ## VitePress usage
 
