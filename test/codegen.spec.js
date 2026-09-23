@@ -214,7 +214,7 @@ describe('utils/codegen', () => {
     assert.equal(inactiveRegion.active, false);
   });
 
-  it('should preserve false for a default-true boolean in copy and preview', () => {
+  it('should keep default-true boolean toggles bare while copying an explicit false binding', () => {
     const schema = {
       name: 'ExampleToggle',
       props: {
@@ -230,8 +230,43 @@ describe('utils/codegen', () => {
       },
     });
     const generated = generateComponentUsage(schema, state);
+    const inactiveRegion = generated.regions.find(
+      (region) => region.kind === 'boolean-prop' && region.prop === 'enabled',
+    );
 
+    assert.match(generated.code, /\n  enabled\n\/>/);
     assert.match(generated.copyCode, /:enabled="false"/);
+    assert.equal(inactiveRegion.active, false);
+    assert.equal(getPreviewProps(schema, state).enabled, false);
+    assert.doesNotThrow(() => compile(generated.copyCode));
+
+    state.props.enabled = true;
+    const enabled = generateComponentUsage(schema, state);
+
+    assert.match(enabled.code, /\n  enabled\n\/>/);
+    assert.match(enabled.copyCode, /\n  enabled\n\/>/);
+    assert.equal(getPreviewProps(schema, state).enabled, true);
+  });
+
+  it('should keep default-false boolean toggles bare while omitting inactive copy output', () => {
+    const schema = {
+      name: 'ExampleToggle',
+      props: {
+        enabled: {
+          kind: 'boolean',
+          default: false,
+        },
+      },
+    };
+    const state = createPlaygroundState(schema);
+    const generated = generateComponentUsage(schema, state);
+    const inactiveRegion = generated.regions.find(
+      (region) => region.kind === 'boolean-prop' && region.prop === 'enabled',
+    );
+
+    assert.match(generated.code, /\n  enabled\n\/>/);
+    assert.doesNotMatch(generated.copyCode, /enabled/);
+    assert.equal(inactiveRegion.active, false);
     assert.equal(getPreviewProps(schema, state).enabled, false);
     assert.doesNotThrow(() => compile(generated.copyCode));
   });
