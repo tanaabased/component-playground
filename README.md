@@ -19,10 +19,17 @@ Use Bun 1.4.2 and Node 26:
 bun install --frozen-lockfile --ignore-scripts
 bun run lint
 bun run test
+bun run test:components
+bun run test:components -- -t "test name"
+bun run test:components:watch
 bun run build
 bun run test:package
 bun run dev:docs
 ```
+
+`test` runs the Mocha unit suite and the Vitest component suite. The component commands provide
+non-watch, focused, and watch modes using Vue Test Utils and jsdom; they verify behavior rather than
+browser layout or visual appearance.
 
 `test:package` builds the package, packs it, installs that exact tarball into the plain Vue example,
 and runs the example's production build. It requires Node 26 because the current Vite toolchain is
