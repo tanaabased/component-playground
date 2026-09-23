@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 
 import { defineConfig } from 'vitepress';
 
+import { syntaxThemePairs } from '../syntax-themes.js';
+
 const packageMetadata = JSON.parse(
   readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
 );
@@ -11,6 +13,9 @@ export default defineConfig({
   description: 'Schema-driven interactive examples for Vue 3 components.',
   cleanUrls: true,
   lastUpdated: true,
+  markdown: {
+    theme: syntaxThemePairs.github,
+  },
   themeConfig: {
     nav: [
       { text: 'Guide', link: '/guide/' },

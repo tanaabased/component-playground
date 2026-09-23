@@ -71,5 +71,7 @@ is useful:
 The stylesheet provides usable light and dark defaults without a VitePress or Tanaab dependency.
 Use the `appearance` prop and the documented `--component-playground-*` variables to adapt each
 instance; floating enum menus retain their owning instance's values after teleporting to `body`.
+Use `syntaxThemes` with exact Shiki theme imports to share a light/dark syntax pair without bundling
+the complete theme registry.
 The [guide](docs/guide/index.md), [live capability examples](docs/examples.md), and [schema and styling
 reference](docs/reference.md) document the complete contract.

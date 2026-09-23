@@ -62,6 +62,20 @@ or a `countControl`. `autoCountProp` can derive an automatic count from a numeri
 | `initialState` | Optional `{ controls, props, slots }` overrides. Declared keys override schema defaults; other keys are ignored. |
 | `previewFit`   | `full` (default) or `contained`. Invalid values resolve to `full`.                                               |
 | `appearance`   | `auto` (default), `light`, or `dark`. Invalid values resolve to `auto`.                                          |
+| `syntaxThemes` | Optional `{ light, dark }` Shiki theme registrations or lazy registration loaders.                               |
+
+## Syntax highlighting contract
+
+Omitting `syntaxThemes` preserves the lazily loaded `github-light` and `github-dark` defaults. Each
+configured value may be a Shiki theme registration or a function that returns a registration, module,
+or promise. Import themes from exact `shiki/themes/*.mjs` paths so consumers ship only the selected
+pair rather than the complete bundled-theme registry.
+
+Raw registration pairs can be shared with compatible Shiki-based Markdown renderers. Lazy loaders are
+useful when an application wants separate theme chunks, but build-time renderers generally consume
+the resolved registrations. Theme selection is per playground instance. A later code or theme update
+wins over older asynchronous work, and a failed load removes token colors without disabling the
+readable, editable code surface.
 
 ## Styling contract
 
