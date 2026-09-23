@@ -11,6 +11,7 @@ import ComponentPlayground from '../components/ComponentPlayground.vue';
 import ExampleBox from '../docs/components/ExampleBox.vue';
 import ExampleGrid from '../docs/components/ExampleGrid.vue';
 import ExampleList from '../docs/components/ExampleList.vue';
+import ExampleLogo from '../docs/components/ExampleLogo.vue';
 import ExampleSection from '../docs/components/ExampleSection.vue';
 import { createPlaygroundState, generateComponentUsage } from '../utils/codegen.js';
 
@@ -121,6 +122,15 @@ const gridSchema = {
       autoCountProp: 'columns',
       defaultCount: 3,
     },
+  },
+};
+
+const logoSchema = {
+  name: 'ExampleLogo',
+  props: {
+    link: { kind: 'string', default: '/' },
+    color: { kind: 'string', default: 'var(--vp-c-brand-1)' },
+    background: { kind: 'string', default: 'var(--vp-c-bg-soft)' },
   },
 };
 
@@ -500,6 +510,51 @@ describe('ComponentPlayground', () => {
     expect(copied).toContain(':columns="2"');
     expect(copied.match(/<ExampleBox/g)).toHaveLength(4);
     expect(copied).not.toContain('box-count');
+    vi.runAllTimers();
+  });
+
+  it('updates the accessible logo colors and link in preview and copied markup', async () => {
+    const wrapper = await mountPlayground({
+      component: ExampleLogo,
+      schema: logoSchema,
+    });
+    const logo = wrapper.get('.example-logo');
+
+    expect(logo.attributes('aria-label')).toBe('Tanaab Maneuvering Systems');
+    expect(logo.attributes('href')).toBe('/');
+    expect(logo.attributes('style')).toContain('--example-logo-color: var(--vp-c-brand-1)');
+    expect(logo.get('.example-logo__mark').attributes('aria-hidden')).toBe('true');
+
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'color',
+      '#db2777',
+    );
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'background',
+      '#fff7ed',
+    );
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'link',
+      'https://github.com/tanaabased',
+    );
+
+    expect(logo.attributes('href')).toBe('https://github.com/tanaabased');
+    expect(logo.attributes('style')).toContain('--example-logo-color: #db2777');
+    expect(logo.attributes('style')).toContain('--example-logo-background: #fff7ed');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('color="#db2777"');
+    expect(copied).toContain('background="#fff7ed"');
+    expect(copied).toContain('link="https://github.com/tanaabased"');
     vi.runAllTimers();
   });
 

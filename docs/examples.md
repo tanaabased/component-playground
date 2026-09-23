@@ -4,6 +4,7 @@ import { computed, markRaw, ref } from 'vue';
 import ExampleBox from './components/ExampleBox.vue';
 import ExampleGrid from './components/ExampleGrid.vue';
 import ExampleList from './components/ExampleList.vue';
+import ExampleLogo from './components/ExampleLogo.vue';
 import ExampleSection from './components/ExampleSection.vue';
 import { syntaxThemePairs } from './syntax-themes.js';
 
@@ -118,6 +119,15 @@ const listSchema = {
   },
 };
 
+const logoSchema = {
+  name: 'ExampleLogo',
+  props: {
+    link: { kind: 'string', default: '/' },
+    color: { kind: 'string', default: 'var(--vp-c-brand-1)' },
+    background: { kind: 'string', default: 'var(--vp-c-bg-soft)' },
+  },
+};
+
 const eventInitialState = {
   props: {
     borderTop: false,
@@ -154,8 +164,12 @@ These examples adapt Tanaab's
 [section](https://github.com/tanaabased/theme/blob/main/components/TMSSection.vue),
 [grid](https://github.com/tanaabased/theme/blob/main/components/TMSGrid.vue),
 [box](https://github.com/tanaabased/theme/blob/main/components/TMSBox.vue), and
-[list](https://github.com/tanaabased/theme/blob/main/components/TMSList.vue) components. They retain
-the stock VitePress theme and use its `--vp-c-*` variables; no replacement theme is required.
+[list](https://github.com/tanaabased/theme/blob/main/components/TMSList.vue), and
+[logo](https://github.com/tanaabased/theme/blob/main/components/TMSLogo.vue) components. The logo
+uses Tanaab's
+[inline SVG asset](https://github.com/tanaabased/theme/blob/main/public/images/tms_mark_var.svg).
+They retain the stock VitePress theme and use its `--vp-c-*` variables; no replacement theme is
+required.
 
 ## Section borders, orientation, and slots
 
@@ -264,6 +278,25 @@ items. Change `columns` or `orientation` to verify the declared list layout in t
 Use **reset** beneath any example to restore its schema defaults. The border appearance and grid or
 list layout are human checks here; automated checks cover the corresponding DOM attributes, state,
 child counts, preview content, and copied markup.
+
+## Logo color, background, and link
+
+The logo adapts Tanaab's SVG component without requiring the Tanaab theme. Its color and background
+use stock VitePress variables by default, the root link has a useful accessible name, and the
+decorative mark stays hidden from assistive technology.
+
+<ComponentPlayground
+  :component="ExampleLogo"
+  :schema="logoSchema"
+  :source="`${sourceBase}/ExampleLogo.vue`"
+  preview-fit="contained"
+/>
+
+::: tip Try it
+Change `color` to `#db2777`, `background` to `#fff7ed`, and `link` to
+`https://github.com/tanaabased`. The preview should use the new colors, the logo link should target
+the new URL, and copied markup should contain all three edits.
+:::
 
 ## Events and initial state
 
