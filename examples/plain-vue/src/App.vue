@@ -1,12 +1,29 @@
 <template>
   <main>
     <h1>Plain Vue consumer</h1>
-    <ComponentPlayground
-      :component="ExamplePanel"
-      :schema="schema"
-      :initial-state="initialState"
-      source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
-    />
+    <p>Each instance uses the package stylesheet without a documentation theme.</p>
+    <div class="playground-grid">
+      <section>
+        <h2>Automatic appearance</h2>
+        <ComponentPlayground
+          :component="ExamplePanel"
+          :schema="schema"
+          :initial-state="initialState"
+          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
+        />
+      </section>
+      <section>
+        <h2>Instance override</h2>
+        <ComponentPlayground
+          appearance="dark"
+          class="custom-playground"
+          :component="ExamplePanel"
+          :schema="schema"
+          :initial-state="initialState"
+          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
+        />
+      </section>
+    </div>
   </main>
 </template>
 
@@ -68,5 +85,16 @@ body {
   margin: 0 auto;
   color: #202124;
   font-family: system-ui, sans-serif;
+}
+
+.playground-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+.custom-playground {
+  --component-playground-accent-color: #8be9fd;
+  --component-playground-focus-color: #f1fa8c;
+  --component-playground-border-radius: 0.75rem;
 }
 </style>

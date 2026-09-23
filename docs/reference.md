@@ -61,6 +61,42 @@ or a `countControl`. `autoCountProp` can derive an automatic count from a numeri
 | `source`       | Optional explicit URL for the **source** link. This replaces automatic theme source-link inference.              |
 | `initialState` | Optional `{ controls, props, slots }` overrides. Declared keys override schema defaults; other keys are ignored. |
 | `previewFit`   | `full` (default) or `contained`. Invalid values resolve to `full`.                                               |
+| `appearance`   | `auto` (default), `light`, or `dark`. Invalid values resolve to `auto`.                                          |
+
+## Styling contract
+
+The package stylesheet gives playground chrome standalone light and dark defaults. `appearance="auto"`
+uses `prefers-color-scheme`; `light` and `dark` remain fixed regardless of the operating-system
+setting. Set any of these variables on a playground instance or an ancestor:
+
+| Variable                                         | Purpose                               | Default                         |
+| ------------------------------------------------ | ------------------------------------- | ------------------------------- |
+| `--component-playground-background-color`        | Code and control surfaces             | `#f6f8fa` light; `#0d1117` dark |
+| `--component-playground-foreground-color`        | Primary chrome and code text          | `#1f2328` light; `#f0f6fc` dark |
+| `--component-playground-muted-color`             | Secondary action text                 | `#59636e` light; `#9198a1` dark |
+| `--component-playground-border-color`            | Code, button, and menu borders        | `#d1d9e0` light; `#3d444d` dark |
+| `--component-playground-accent-color`            | Links and editable-region markers     | `#0969da` light; `#58a6ff` dark |
+| `--component-playground-hover-background-color`  | Hovered controls and regions          | `#d8dee4` light; `#262c36` dark |
+| `--component-playground-active-background-color` | Active controls and selected options  | `#b6d6ff` light; `#1f4979` dark |
+| `--component-playground-focus-color`             | Keyboard focus outlines               | `#0969da` light; `#58a6ff` dark |
+| `--component-playground-font-family`             | Playground action typography          | System sans-serif stack         |
+| `--component-playground-monospace-font-family`   | Code and enum-menu typography         | System monospace stack          |
+| `--component-playground-font-size`               | Base chrome and code size             | `0.875rem`                      |
+| `--component-playground-line-height`             | Code and menu line height             | `1.5`                           |
+| `--component-playground-gap`                     | Preview-to-code spacing               | `1rem`                          |
+| `--component-playground-actions-gap`             | Action-row spacing                    | `0.35rem`                       |
+| `--component-playground-code-padding`            | Code editor padding                   | `1rem`                          |
+| `--component-playground-control-padding-block`   | Button and menu-option block padding  | `0.35rem`                       |
+| `--component-playground-control-padding-inline`  | Button and menu-option inline padding | `0.6rem`                        |
+| `--component-playground-border-width`            | Chrome border width                   | `1px`                           |
+| `--component-playground-border-style`            | Chrome border style                   | `solid`                         |
+| `--component-playground-border-radius`           | Code, button, and menu corner radius  | `0.375rem`                      |
+| `--component-playground-focus-width`             | Keyboard focus outline width          | `2px`                           |
+
+The preview wrapper uses structural layout only. It does not apply playground colors, typography,
+or interaction styling to the demonstrated component. A floating enum menu copies the resolved
+public variables from its owning playground when it opens, so separate instances can safely carry
+different overrides despite the menu being teleported to `body`.
 
 ## Events and state
 
@@ -129,6 +165,5 @@ this task.
 - Demonstration controls are currently enum selectors rather than a general control API.
 - Object-array editing is limited to declared string and enum fields.
 - HTML slot values are rendered with `v-html`; schemas must provide trusted content.
-- The optional stylesheet is structural. It inherits host typography and color and exposes no public
-  theming API yet.
+- The stylesheet is optional; consumers that omit it own all layout, interaction, and menu styling.
 - The package targets Vue 3 and has no Nuxt-specific integration in this release.
