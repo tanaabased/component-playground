@@ -4,13 +4,16 @@
     :data-border-bottom="borderBottom"
     :data-border-top="borderTop"
     :data-orientation="orientation"
+    :aria-labelledby="titleId"
   >
-    <h3 class="example-section__title"><slot name="title"></slot></h3>
+    <div :id="titleId" class="example-section__title"><slot name="title"></slot></div>
     <div class="example-section__content"><slot></slot></div>
   </section>
 </template>
 
 <script setup>
+import { useId } from 'vue';
+
 defineProps({
   borderBottom: {
     type: Boolean,
@@ -26,6 +29,8 @@ defineProps({
     validator: (value) => ['left', 'right'].includes(value),
   },
 });
+
+const titleId = useId();
 </script>
 
 <style scoped>

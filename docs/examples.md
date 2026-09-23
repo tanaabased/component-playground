@@ -1,11 +1,18 @@
 <script setup>
-import { computed, markRaw, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import ExampleBox from './components/ExampleBox.vue';
 import ExampleGrid from './components/ExampleGrid.vue';
 import ExampleList from './components/ExampleList.vue';
 import ExampleLogo from './components/ExampleLogo.vue';
 import ExampleSection from './components/ExampleSection.vue';
+import {
+  boxSchema,
+  gridSchema,
+  listSchema,
+  logoSchema,
+  sectionSchema,
+} from './example-schemas.js';
 import { syntaxThemePairs } from './syntax-themes.js';
 
 const sourceBase =
@@ -25,107 +32,6 @@ const tanaabPlaygroundStyle = {
     'Berkeley Mono, ui-monospace, SFMono-Regular, Consolas, monospace',
   '--component-playground-border-radius': '0.75rem',
   '--component-playground-control-padding-inline': '0.75rem',
-};
-
-const sectionSchema = {
-  name: 'ExampleSection',
-  props: {
-    borderTop: { kind: 'boolean', default: true },
-    borderBottom: { kind: 'boolean', default: false },
-    orientation: { kind: 'enum', options: ['left', 'right'], default: 'left' },
-  },
-  slots: {
-    title: { kind: 'text', default: 'A section with a job' },
-    default: {
-      kind: 'html',
-      default: '<p>Its controls change <strong>visible structure</strong>, not decorative trivia.</p>',
-    },
-  },
-};
-
-const gridSchema = {
-  name: 'ExampleGrid',
-  controls: {
-    boxCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', '4', 'auto'],
-      default: '3',
-    },
-  },
-  props: {
-    columns: { kind: 'number', default: 3 },
-  },
-  slots: {
-    default: {
-      kind: 'repeat',
-      component: markRaw(ExampleBox),
-      componentName: 'ExampleBox',
-      items: ['Navigation', 'Search', 'Release notes', 'Support'],
-      countControl: 'boxCount',
-      autoCountProp: 'columns',
-      defaultCount: 3,
-    },
-  },
-};
-
-const listSchema = {
-  name: 'ExampleList',
-  controls: {
-    contentPreset: {
-      kind: 'enum',
-      options: ['compact', 'detailed'],
-      default: 'detailed',
-    },
-    itemCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', '4'],
-      default: '4',
-    },
-  },
-  props: {
-    header: { kind: 'string', default: 'Mission crew' },
-    columns: { kind: 'enum', options: ['1', '2', '3'], default: '2' },
-    orientation: { kind: 'enum', options: ['column', 'row'], default: 'column' },
-    items: {
-      kind: 'object-array',
-      presetControl: 'contentPreset',
-      countControl: 'itemCount',
-      defaultPreset: 'detailed',
-      defaultCount: 4,
-      presets: {
-        compact: [
-          { label: 'Naomi Nagata', category: 'Engineer' },
-          { label: 'James Holden', category: 'Captain' },
-          { label: 'Camina Drummer', category: 'Commander' },
-          { label: 'Amos Burton', category: 'Engineer' },
-        ],
-        detailed: [
-          { label: 'Naomi Nagata', category: 'Engineer', detail: 'Keeps the ship flying' },
-          { label: 'James Holden', category: 'Captain', detail: 'Pushes every available button' },
-          { label: 'Camina Drummer', category: 'Commander', detail: 'Makes the hard calls' },
-          { label: 'Amos Burton', category: 'Engineer', detail: 'Fixes what remains' },
-        ],
-      },
-      fields: [
-        { path: 'label', kind: 'string' },
-        {
-          path: 'category',
-          kind: 'enum',
-          options: ['Captain', 'Commander', 'Engineer'],
-        },
-        { path: 'detail', kind: 'string', optional: true },
-      ],
-    },
-  },
-};
-
-const logoSchema = {
-  name: 'ExampleLogo',
-  props: {
-    link: { kind: 'string', default: '/' },
-    color: { kind: 'string', default: 'var(--vp-c-brand-1)' },
-    background: { kind: 'string', default: 'var(--vp-c-bg-soft)' },
-  },
 };
 
 const eventInitialState = {
@@ -163,11 +69,10 @@ toggle when clicked. Copy returns ordinary component usage without playground-on
 These examples adapt Tanaab's
 [section](https://github.com/tanaabased/theme/blob/main/components/TMSSection.vue),
 [grid](https://github.com/tanaabased/theme/blob/main/components/TMSGrid.vue),
-[box](https://github.com/tanaabased/theme/blob/main/components/TMSBox.vue), and
+[box](https://github.com/tanaabased/theme/blob/main/components/TMSBox.vue),
 [list](https://github.com/tanaabased/theme/blob/main/components/TMSList.vue), and
 [logo](https://github.com/tanaabased/theme/blob/main/components/TMSLogo.vue) components. The logo
-uses Tanaab's
-[inline SVG asset](https://github.com/tanaabased/theme/blob/main/public/images/tms_mark_var.svg).
+uses Tanaab's four upstream SVG layouts: left, right, centered, and mark.
 They retain the stock VitePress theme and use its `--vp-c-*` variables; no replacement theme is
 required.
 
@@ -240,10 +145,30 @@ The customized instance is ordinary Vue; no theme provider or global stylesheet 
 />
 ```
 
+## Box type, link, and content
+
+The box preserves both upstream content treatments and switches between a plain container and an
+anchor when `link` has a value. Its default slot remains ordinary editable text.
+
+<ComponentPlayground
+  :component="ExampleBox"
+  :schema="boxSchema"
+  :source="`${sourceBase}/ExampleBox.vue`"
+  preview-fit="contained"
+/>
+
+::: tip Try it
+Change `type` from `title` to `content`, edit the slot text, then clear and restore `link`. The
+preview should switch treatments, the linked box should use an anchor, and copied markup should
+contain the selected type, link, and content.
+:::
+
 ## Grid columns and repeated boxes
 
-The number prop declares the real CSS grid column count. The demonstration-only `boxCount` control
-changes how many `ExampleBox` children appear; `auto` derives the child count from `columns`.
+The upstream grid accepts numeric or numeric-string column counts from `1` through `6`; this
+playground exposes the number form so it also retains number-prop editing. The demonstration-only
+`boxCount` control changes how many title-type `ExampleBox` children appear; `auto` derives the child
+count from `columns`.
 
 <ComponentPlayground
   :component="ExampleGrid"
@@ -252,15 +177,16 @@ changes how many `ExampleBox` children appear; `auto` derives the child count fr
 />
 
 ::: tip Try it
-Change `columns` from `3` to `2`, then select `4` for `box-count`. The preview should become a
-two-column grid containing four boxes, and copied markup should contain four `ExampleBox` children.
+Change `columns` from `3` to `6`, then select `6` for `box-count`. The preview should become a
+six-column grid containing six boxes, and copied markup should contain six title-type `ExampleBox`
+children.
 :::
 
 ## List presets and editable content
 
-The list combines a string prop, enum props, object-array presets, a visible-item count, and editable
-item fields. Its column and orientation values change actual layout state rather than narrating what
-the component might hypothetically do. An inspiring advance for software everywhere.
+The list exposes every upstream prop: header text and link, column and orientation modes, plus
+editable item labels, links, and safe link attributes. Presets and item count remain
+demonstration-only controls and do not leak into copied component usage.
 
 <ComponentPlayground
   :component="ExampleList"
@@ -270,20 +196,21 @@ the component might hypothetically do. An inspiring advance for software everywh
 />
 
 ::: tip Try it
-Select the `compact` content preset, set `item-count` to `2`, then edit the first label. The details
-should disappear, two edited items should remain, and copied markup should contain exactly those
-items. Change `columns` or `orientation` to verify the declared list layout in the preview.
+Select the `plain` content preset, set `item-count` to `2`, then edit the first label and link. Change
+`header-link`, `columns`, and `orientation`. The preview should contain exactly two edited items,
+links should appear only when provided, and copied markup should contain the selected layout, header,
+items, and safe nested attributes.
 :::
 
 Use **reset** beneath any example to restore its schema defaults. The border appearance and grid or
 list layout are human checks here; automated checks cover the corresponding DOM attributes, state,
 child counts, preview content, and copied markup.
 
-## Logo color, background, and link
+## Logo layout, color, background, and link
 
-The logo adapts Tanaab's SVG component without requiring the Tanaab theme. Its color and background
-use stock VitePress variables by default, the root link has a useful accessible name, and the
-decorative mark stays hidden from assistive technology.
+The logo preserves all four upstream `type` values without requiring the Tanaab theme. Its color
+defaults to the stock VitePress text variable, its background defaults to transparent, the root link
+has a useful accessible name, and each decorative SVG stays hidden from assistive technology.
 
 <ComponentPlayground
   :component="ExampleLogo"
@@ -293,9 +220,9 @@ decorative mark stays hidden from assistive technology.
 />
 
 ::: tip Try it
-Change `color` to `#db2777`, `background` to `#fff7ed`, and `link` to
-`https://github.com/tanaabased`. The preview should use the new colors, the logo link should target
-the new URL, and copied markup should contain all three edits.
+Change `type` through `left`, `right`, `centered`, and `mark`; then set `color` to `#db2777`,
+`background` to `#fff7ed`, and `link` to `https://github.com/tanaabased`. The preview should use each
+real logo layout and the new presentation values, while copied markup should contain all four props.
 :::
 
 ## Events and initial state

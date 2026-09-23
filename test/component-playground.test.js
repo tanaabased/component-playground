@@ -13,6 +13,13 @@ import ExampleGrid from '../docs/components/ExampleGrid.vue';
 import ExampleList from '../docs/components/ExampleList.vue';
 import ExampleLogo from '../docs/components/ExampleLogo.vue';
 import ExampleSection from '../docs/components/ExampleSection.vue';
+import {
+  boxSchema,
+  gridSchema,
+  listSchema,
+  logoSchema,
+  sectionSchema,
+} from '../docs/example-schemas.js';
 import { createPlaygroundState, generateComponentUsage } from '../utils/codegen.js';
 
 const BooleanPreview = defineComponent({
@@ -29,108 +36,6 @@ const booleanSchema = {
   name: 'BooleanPreview',
   props: {
     enabled: { kind: 'boolean', default: false },
-  },
-};
-
-const sectionSchema = {
-  name: 'ExampleSection',
-  props: {
-    borderTop: { kind: 'boolean', default: true },
-    borderBottom: { kind: 'boolean', default: false },
-    orientation: { kind: 'enum', options: ['left', 'right'], default: 'left' },
-  },
-  slots: {
-    title: { kind: 'text', default: 'A section with a job' },
-    default: {
-      kind: 'html',
-      default:
-        '<p>Its controls change <strong>visible structure</strong>, not decorative trivia.</p>',
-    },
-  },
-};
-
-const listSchema = {
-  name: 'ExampleList',
-  controls: {
-    contentPreset: {
-      kind: 'enum',
-      options: ['compact', 'detailed'],
-      default: 'detailed',
-    },
-    itemCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', '4'],
-      default: '4',
-    },
-  },
-  props: {
-    header: { kind: 'string', default: 'Mission crew' },
-    columns: { kind: 'enum', options: ['1', '2', '3'], default: '2' },
-    orientation: { kind: 'enum', options: ['column', 'row'], default: 'column' },
-    items: {
-      kind: 'object-array',
-      presetControl: 'contentPreset',
-      countControl: 'itemCount',
-      defaultPreset: 'detailed',
-      defaultCount: 4,
-      presets: {
-        compact: [
-          { label: 'Naomi Nagata', category: 'Engineer' },
-          { label: 'James Holden', category: 'Captain' },
-          { label: 'Camina Drummer', category: 'Commander' },
-          { label: 'Amos Burton', category: 'Engineer' },
-        ],
-        detailed: [
-          { label: 'Naomi Nagata', category: 'Engineer', detail: 'Keeps the ship flying' },
-          { label: 'James Holden', category: 'Captain', detail: 'Pushes every available button' },
-          { label: 'Camina Drummer', category: 'Commander', detail: 'Makes the hard calls' },
-          { label: 'Amos Burton', category: 'Engineer', detail: 'Fixes what remains' },
-        ],
-      },
-      fields: [
-        { path: 'label', kind: 'string' },
-        {
-          path: 'category',
-          kind: 'enum',
-          options: ['Captain', 'Commander', 'Engineer'],
-        },
-        { path: 'detail', kind: 'string', optional: true },
-      ],
-    },
-  },
-};
-
-const gridSchema = {
-  name: 'ExampleGrid',
-  controls: {
-    boxCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', '4', 'auto'],
-      default: '3',
-    },
-  },
-  props: {
-    columns: { kind: 'number', default: 3 },
-  },
-  slots: {
-    default: {
-      kind: 'repeat',
-      component: markRaw(ExampleBox),
-      componentName: 'ExampleBox',
-      items: ['Navigation', 'Search', 'Release notes', 'Support'],
-      countControl: 'boxCount',
-      autoCountProp: 'columns',
-      defaultCount: 3,
-    },
-  },
-};
-
-const logoSchema = {
-  name: 'ExampleLogo',
-  props: {
-    link: { kind: 'string', default: '/' },
-    color: { kind: 'string', default: 'var(--vp-c-brand-1)' },
-    background: { kind: 'string', default: 'var(--vp-c-bg-soft)' },
   },
 };
 
@@ -436,17 +341,16 @@ describe('ComponentPlayground', () => {
     });
 
     expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(4);
-    expect(wrapper.get('.component-playground__preview').text()).toContain('Keeps the ship flying');
+    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(4);
+    expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/guide/');
 
     await selectEnum(
       wrapper,
       listSchema,
       (candidate) => candidate.control === 'contentPreset',
-      'compact',
+      'plain',
     );
-    expect(wrapper.get('.component-playground__preview').text()).not.toContain(
-      'Keeps the ship flying',
-    );
+    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(0);
 
     await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '2');
     await editRegion(
@@ -462,22 +366,85 @@ describe('ComponentPlayground', () => {
     await editRegion(
       wrapper,
       listSchema,
+      (candidate) =>
+        candidate.kind === 'array-prop-field' &&
+        candidate.prop === 'items' &&
+        candidate.index === 0 &&
+        candidate.path === 'link',
+      '/flight/',
+    );
+    await editRegion(
+      wrapper,
+      listSchema,
       (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'header',
       'Edited crew',
     );
+    await editRegion(
+      wrapper,
+      listSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'headerLink',
+      '/crew/',
+    );
 
     expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(2);
-    expect(wrapper.get('.component-playground__preview h3').text()).toBe('Edited crew');
-    expect(wrapper.get('.component-playground__preview li strong').text()).toBe('Flight director');
+    expect(wrapper.get('.example-list__header a').text()).toBe('Edited crew');
+    expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/crew/');
+    expect(wrapper.get('.component-playground__preview li a').text()).toBe('Flight director');
+    expect(wrapper.get('.component-playground__preview li a').attributes('href')).toBe('/flight/');
 
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
     const copied = wrapper.emitted('copy').at(-1)[0];
     expect(copied).toContain('header="Edited crew"');
+    expect(copied).toContain('header-link="/crew/"');
     expect(copied).toContain("label: 'Flight director'");
+    expect(copied).toContain("link: '/flight/'");
     expect(copied.match(/label: '/g)).toHaveLength(2);
     expect(copied).not.toContain('content-preset');
+    vi.runAllTimers();
+  });
+
+  it('updates box type, link, and slot content in preview and copied markup', async () => {
+    const wrapper = await mountPlayground({
+      component: ExampleBox,
+      schema: boxSchema,
+    });
+
+    expect(wrapper.get('.example-box').element.tagName).toBe('A');
+    expect(wrapper.get('.example-box').attributes('data-type')).toBe('title');
+
+    await selectEnum(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'type',
+      'content',
+    );
+    await editRegion(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'link',
+      '/support/',
+    );
+    await editRegion(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'default',
+      'Support',
+    );
+
+    const box = wrapper.get('.example-box');
+    expect(box.attributes('data-type')).toBe('content');
+    expect(box.attributes('href')).toBe('/support/');
+    expect(box.text()).toBe('Support');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('type="content"');
+    expect(copied).toContain('link="/support/"');
+    expect(copied).toContain('Support');
     vi.runAllTimers();
   });
 
@@ -487,33 +454,34 @@ describe('ComponentPlayground', () => {
       schema: gridSchema,
     });
 
-    expect(wrapper.findAll('.component-playground__preview article')).toHaveLength(3);
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(3);
     expect(wrapper.get('.example-grid').attributes('data-columns')).toBe('3');
 
     await editRegion(
       wrapper,
       gridSchema,
       (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'columns',
-      '2',
+      '6',
     );
-    await selectEnum(wrapper, gridSchema, (candidate) => candidate.control === 'boxCount', '4');
+    await selectEnum(wrapper, gridSchema, (candidate) => candidate.control === 'boxCount', '6');
 
     const grid = wrapper.get('.example-grid');
-    expect(grid.attributes('data-columns')).toBe('2');
-    expect(grid.attributes('style')).toContain('--example-grid-columns: 2');
-    expect(wrapper.findAll('.component-playground__preview article')).toHaveLength(4);
+    expect(grid.attributes('data-columns')).toBe('6');
+    expect(grid.attributes('style')).toContain('--example-grid-columns: 6');
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(6);
 
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
     const copied = wrapper.emitted('copy').at(-1)[0];
-    expect(copied).toContain(':columns="2"');
-    expect(copied.match(/<ExampleBox/g)).toHaveLength(4);
+    expect(copied).toContain(':columns="6"');
+    expect(copied.match(/<ExampleBox/g)).toHaveLength(6);
+    expect(copied.match(/type="title"/g)).toHaveLength(6);
     expect(copied).not.toContain('box-count');
     vi.runAllTimers();
   });
 
-  it('updates the accessible logo colors and link in preview and copied markup', async () => {
+  it('updates the accessible logo layout, colors, and link in preview and copied markup', async () => {
     const wrapper = await mountPlayground({
       component: ExampleLogo,
       schema: logoSchema,
@@ -522,8 +490,16 @@ describe('ComponentPlayground', () => {
 
     expect(logo.attributes('aria-label')).toBe('Tanaab Maneuvering Systems');
     expect(logo.attributes('href')).toBe('/');
-    expect(logo.attributes('style')).toContain('--example-logo-color: var(--vp-c-brand-1)');
-    expect(logo.get('.example-logo__mark').attributes('aria-hidden')).toBe('true');
+    expect(logo.attributes('data-type')).toBe('centered');
+    expect(logo.attributes('style')).toContain('--example-logo-color: var(--vp-c-text-1)');
+    expect(logo.get('.example-logo__image').attributes('aria-hidden')).toBe('true');
+
+    await selectEnum(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'type',
+      'right',
+    );
 
     await editRegion(
       wrapper,
@@ -545,6 +521,7 @@ describe('ComponentPlayground', () => {
     );
 
     expect(logo.attributes('href')).toBe('https://github.com/tanaabased');
+    expect(logo.attributes('data-type')).toBe('right');
     expect(logo.attributes('style')).toContain('--example-logo-color: #db2777');
     expect(logo.attributes('style')).toContain('--example-logo-background: #fff7ed');
 
@@ -552,6 +529,7 @@ describe('ComponentPlayground', () => {
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
     const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('type="right"');
     expect(copied).toContain('color="#db2777"');
     expect(copied).toContain('background="#fff7ed"');
     expect(copied).toContain('link="https://github.com/tanaabased"');

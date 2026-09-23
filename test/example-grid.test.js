@@ -2,8 +2,15 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import ExampleGrid from '../docs/components/ExampleGrid.vue';
+import { gridSchema } from '../docs/example-schemas.js';
 
 describe('ExampleGrid', () => {
+  it('exposes all six column counts in the documentation schema', () => {
+    expect(Object.keys(gridSchema.props)).toEqual(['columns']);
+    expect(gridSchema.controls.boxCount.options).toEqual(['1', '2', '3', '4', '5', '6', 'auto']);
+    expect(Object.keys(gridSchema.slots)).toEqual(['default']);
+  });
+
   it('defaults to one column and preserves its slot content', () => {
     const wrapper = mount(ExampleGrid, {
       slots: {
@@ -16,15 +23,19 @@ describe('ExampleGrid', () => {
     expect(wrapper.findAll('article')).toHaveLength(2);
   });
 
-  it('uses supported column counts and falls back for invalid values', async () => {
+  it('accepts numeric and numeric-string columns through six and falls back for invalid values', async () => {
     const wrapper = mount(ExampleGrid, {
       props: {
-        columns: 4,
+        columns: 6,
       },
     });
 
-    expect(wrapper.attributes('data-columns')).toBe('4');
-    expect(wrapper.element.style.getPropertyValue('--example-grid-columns')).toBe('4');
+    expect(wrapper.attributes('data-columns')).toBe('6');
+    expect(wrapper.element.style.getPropertyValue('--example-grid-columns')).toBe('6');
+
+    await wrapper.setProps({ columns: '5' });
+    expect(wrapper.attributes('data-columns')).toBe('5');
+    expect(wrapper.element.style.getPropertyValue('--example-grid-columns')).toBe('5');
 
     await wrapper.setProps({ columns: 2.5 });
     expect(wrapper.attributes('data-columns')).toBe('1');

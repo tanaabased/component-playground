@@ -2,52 +2,98 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
 import ExampleList from '../docs/components/ExampleList.vue';
+import { listSchema } from '../docs/example-schemas.js';
 
 describe('ExampleList', () => {
-  it('renders its empty default state', () => {
-    const wrapper = mount(ExampleList);
-
-    expect(wrapper.get('h3').text()).toBe('');
-    expect(wrapper.findAll('li')).toHaveLength(0);
-    expect(wrapper.attributes('data-columns')).toBe('1');
-    expect(wrapper.attributes('data-orientation')).toBe('column');
-    expect(wrapper.element.style.getPropertyValue('--example-list-columns')).toBe('1');
+  it('exposes every list prop and layout option in the documentation schema', () => {
+    expect(Object.keys(listSchema.props)).toEqual([
+      'header',
+      'headerLink',
+      'columns',
+      'orientation',
+      'items',
+    ]);
+    expect(listSchema.props.columns.options).toEqual(['none', '2', '3']);
+    expect(listSchema.props.orientation.options).toEqual(['column', 'row']);
+    expect(listSchema.props.items.fields.map((field) => field.path)).toEqual([
+      'label',
+      'link',
+      'attrs.target',
+      'attrs.rel',
+      'attrs.title',
+    ]);
   });
 
-  it('renders item fields and applies supported layout props', () => {
+  it('renders its empty default state without an accessible header relationship', () => {
+    const wrapper = mount(ExampleList);
+
+    expect(wrapper.find('.example-list__header').exists()).toBe(false);
+    expect(wrapper.attributes('aria-labelledby')).toBeUndefined();
+    expect(wrapper.findAll('li')).toHaveLength(0);
+    expect(wrapper.attributes('data-columns')).toBe('none');
+    expect(wrapper.attributes('data-orientation')).toBe('column');
+  });
+
+  it('renders linked headers and sanitized linked or plain items', () => {
     const wrapper = mount(ExampleList, {
       props: {
-        columns: '2',
-        header: 'Mission crew',
+        columns: 2,
+        header: ' Explore Tanaab ',
+        headerLink: ' /guide/ ',
         items: [
           {
-            label: 'Naomi Nagata',
-            category: 'Engineer',
-            detail: 'Keeps the ship flying',
+            label: ' GitHub ',
+            link: ' https://github.com/tanaabased ',
+            attrs: {
+              'aria-label': 'Tanaab on GitHub',
+              onclick: 'nope',
+              target: '_blank',
+              title: 'Open source',
+            },
           },
-          {
-            label: 'James Holden',
-            category: 'Captain',
-          },
+          { label: 'Plain item', attrs: { title: 'Ignored without a link' } },
+          { label: '   ', link: '/hidden/' },
         ],
         orientation: 'row',
       },
     });
 
-    expect(wrapper.get('h3').text()).toBe('Mission crew');
+    const header = wrapper.get('.example-list__header');
+    const headerLink = header.get('a');
+    expect(wrapper.attributes('aria-labelledby')).toBe(header.attributes('id'));
+    expect(headerLink.text()).toBe('Explore Tanaab');
+    expect(headerLink.attributes('href')).toBe('/guide/');
     expect(wrapper.attributes('data-columns')).toBe('2');
     expect(wrapper.attributes('data-orientation')).toBe('row');
-    expect(wrapper.element.style.getPropertyValue('--example-list-columns')).toBe('2');
     expect(wrapper.findAll('li')).toHaveLength(2);
-    expect(wrapper.findAll('strong').map((node) => node.text())).toEqual([
-      'Naomi Nagata',
-      'James Holden',
-    ]);
-    expect(wrapper.findAll('span').map((node) => node.text())).toEqual(['Engineer', 'Captain']);
-    expect(wrapper.findAll('small').map((node) => node.text())).toEqual(['Keeps the ship flying']);
+
+    const linkedItem = wrapper.get('.example-list__item a');
+    expect(linkedItem.text()).toBe('GitHub');
+    expect(linkedItem.attributes('href')).toBe('https://github.com/tanaabased');
+    expect(linkedItem.attributes('target')).toBe('_blank');
+    expect(linkedItem.attributes('rel')).toBe('noreferrer');
+    expect(linkedItem.attributes('title')).toBe('Open source');
+    expect(linkedItem.attributes('aria-label')).toBe('Tanaab on GitHub');
+    expect(linkedItem.attributes('onclick')).toBeUndefined();
+    expect(wrapper.get('.example-list__item span').text()).toBe('Plain item');
   });
 
-  it('falls back to one column when an unsupported value is provided', () => {
+  it('prefers default slot items over the items prop', () => {
+    const wrapper = mount(ExampleList, {
+      props: {
+        items: [{ label: 'Prop item' }],
+      },
+      slots: {
+        default: '<li><a href="/slot/">Slot item</a></li>',
+      },
+    });
+
+    expect(wrapper.findAll('li')).toHaveLength(1);
+    expect(wrapper.get('li').text()).toBe('Slot item');
+    expect(wrapper.text()).not.toContain('Prop item');
+  });
+
+  it('falls back from unsupported columns and orientation values', () => {
     const warnHandler = vi.fn();
     const wrapper = mount(ExampleList, {
       global: {
@@ -57,11 +103,12 @@ describe('ExampleList', () => {
       },
       props: {
         columns: '9',
+        orientation: 'diagonal',
       },
     });
 
     expect(warnHandler).toHaveBeenCalled();
-    expect(wrapper.attributes('data-columns')).toBe('1');
-    expect(wrapper.element.style.getPropertyValue('--example-list-columns')).toBe('1');
+    expect(wrapper.attributes('data-columns')).toBe('none');
+    expect(wrapper.attributes('data-orientation')).toBe('column');
   });
 });

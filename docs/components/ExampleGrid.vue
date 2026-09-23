@@ -13,15 +13,18 @@ import { computed } from 'vue';
 
 const props = defineProps({
   columns: {
-    type: Number,
+    type: [Number, String],
     default: 1,
+    validator: (value) => {
+      const columns = Number(value);
+      return Number.isInteger(columns) && columns >= 1 && columns <= 6;
+    },
   },
 });
 
 const resolvedColumns = computed(() => {
-  return Number.isInteger(props.columns) && props.columns >= 1 && props.columns <= 4
-    ? props.columns
-    : 1;
+  const columns = Number(props.columns);
+  return Number.isInteger(columns) && columns >= 1 && columns <= 6 ? columns : 1;
 });
 </script>
 
