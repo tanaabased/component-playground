@@ -1,10 +1,10 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, markRaw, ref } from 'vue';
 
-import ShowcaseCard from './components/ShowcaseCard.vue';
-import ShowcaseItem from './components/ShowcaseItem.vue';
-import ShowcaseList from './components/ShowcaseList.vue';
-import ShowcaseStack from './components/ShowcaseStack.vue';
+import ExampleBox from './components/ExampleBox.vue';
+import ExampleGrid from './components/ExampleGrid.vue';
+import ExampleList from './components/ExampleList.vue';
+import ExampleSection from './components/ExampleSection.vue';
 import { syntaxThemePairs } from './syntax-themes.js';
 
 const sourceBase =
@@ -26,78 +26,29 @@ const tanaabPlaygroundStyle = {
   '--component-playground-control-padding-inline': '0.75rem',
 };
 
-const cardSchema = {
-  name: 'ShowcaseCard',
+const sectionSchema = {
+  name: 'ExampleSection',
   props: {
-    heading: { kind: 'string', default: 'Editable card' },
-    count: { kind: 'number', default: 3 },
-    tone: { kind: 'enum', options: ['neutral', 'accent'], default: 'neutral' },
-    visible: { kind: 'boolean', default: true },
+    borderTop: { kind: 'boolean', default: true },
+    borderBottom: { kind: 'boolean', default: false },
+    orientation: { kind: 'enum', options: ['left', 'right'], default: 'left' },
   },
   slots: {
-    eyebrow: { kind: 'text', default: 'Named text slot' },
-    title: { kind: 'html', default: '<strong>Named HTML slot</strong>' },
-    default: { kind: 'text', default: 'Default text slot.' },
+    title: { kind: 'text', default: 'A section with a job' },
+    default: {
+      kind: 'html',
+      default: '<p>Its controls change <strong>visible structure</strong>, not decorative trivia.</p>',
+    },
   },
 };
 
-const listSchema = {
-  name: 'ShowcaseList',
+const gridSchema = {
+  name: 'ExampleGrid',
   controls: {
-    contentPreset: {
+    boxCount: {
       kind: 'enum',
-      options: ['brief', 'detailed'],
-      default: 'detailed',
-    },
-    visibleItems: {
-      kind: 'enum',
-      options: ['1', '2', '3'],
+      options: ['1', '2', '3', '4', 'auto'],
       default: '3',
-    },
-  },
-  props: {
-    items: {
-      kind: 'object-array',
-      presetControl: 'contentPreset',
-      countControl: 'visibleItems',
-      defaultPreset: 'detailed',
-      defaultCount: 3,
-      presets: {
-        brief: [
-          { label: 'Ada', meta: { role: 'Engineer' } },
-          { label: 'Grace', meta: { role: 'Writer' } },
-          { label: 'Evelyn', meta: { role: 'Designer' } },
-        ],
-        detailed: [
-          { label: 'Ada', meta: { role: 'Engineer' }, note: 'Builds useful things' },
-          { label: 'Grace', meta: { role: 'Writer' }, note: 'Explains difficult things' },
-          { label: 'Evelyn', meta: { role: 'Designer' }, note: 'Makes them comprehensible' },
-        ],
-      },
-      fields: [
-        { path: 'label', kind: 'string' },
-        {
-          path: 'meta.role',
-          kind: 'enum',
-          options: ['Engineer', 'Designer', 'Writer'],
-        },
-        { path: 'note', kind: 'string', optional: true },
-      ],
-    },
-  },
-  slots: {
-    heading: { kind: 'text', default: 'Named text heading' },
-    default: { kind: 'html', default: '<em>Default HTML slot.</em>' },
-  },
-};
-
-const stackSchema = {
-  name: 'ShowcaseStack',
-  controls: {
-    childCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', 'auto'],
-      default: '2',
     },
   },
   props: {
@@ -106,25 +57,76 @@ const stackSchema = {
   slots: {
     default: {
       kind: 'repeat',
-      component: ShowcaseItem,
-      componentName: 'ShowcaseItem',
-      props: { quiet: true },
-      items: ['First child', 'Second child', 'Third child'],
-      countControl: 'childCount',
+      component: markRaw(ExampleBox),
+      componentName: 'ExampleBox',
+      items: ['Navigation', 'Search', 'Release notes', 'Support'],
+      countControl: 'boxCount',
       autoCountProp: 'columns',
-      defaultCount: 2,
+      defaultCount: 3,
+    },
+  },
+};
+
+const listSchema = {
+  name: 'ExampleList',
+  controls: {
+    contentPreset: {
+      kind: 'enum',
+      options: ['compact', 'detailed'],
+      default: 'detailed',
+    },
+    itemCount: {
+      kind: 'enum',
+      options: ['1', '2', '3', '4'],
+      default: '4',
+    },
+  },
+  props: {
+    header: { kind: 'string', default: 'Mission crew' },
+    columns: { kind: 'enum', options: ['1', '2', '3'], default: '2' },
+    orientation: { kind: 'enum', options: ['column', 'row'], default: 'column' },
+    items: {
+      kind: 'object-array',
+      presetControl: 'contentPreset',
+      countControl: 'itemCount',
+      defaultPreset: 'detailed',
+      defaultCount: 4,
+      presets: {
+        compact: [
+          { label: 'Naomi Nagata', category: 'Engineer' },
+          { label: 'James Holden', category: 'Captain' },
+          { label: 'Camina Drummer', category: 'Commander' },
+          { label: 'Amos Burton', category: 'Engineer' },
+        ],
+        detailed: [
+          { label: 'Naomi Nagata', category: 'Engineer', detail: 'Keeps the ship flying' },
+          { label: 'James Holden', category: 'Captain', detail: 'Pushes every available button' },
+          { label: 'Camina Drummer', category: 'Commander', detail: 'Makes the hard calls' },
+          { label: 'Amos Burton', category: 'Engineer', detail: 'Fixes what remains' },
+        ],
+      },
+      fields: [
+        { path: 'label', kind: 'string' },
+        {
+          path: 'category',
+          kind: 'enum',
+          options: ['Captain', 'Commander', 'Engineer'],
+        },
+        { path: 'detail', kind: 'string', optional: true },
+      ],
     },
   },
 };
 
 const eventInitialState = {
   props: {
-    heading: 'State supplied by the host',
-    count: 7,
-    tone: 'accent',
+    borderTop: false,
+    borderBottom: true,
+    orientation: 'right',
   },
   slots: {
-    default: 'This value survives reset because it is part of initial state.',
+    title: 'State supplied by the host',
+    default: '<p>This content survives reset because it is part of <strong>initial state</strong>.</p>',
   },
 };
 
@@ -145,17 +147,22 @@ function recordState(state) {
 
 # Capability examples
 
-Edit the underlined values in each code block. Enum values open a small selector; boolean attributes
+Edit the underlined values in each code block. Enum values open a selector; Boolean attributes
 toggle when clicked. Copy returns ordinary component usage without playground-only controls.
 
-## Props, slots, and standalone styles
+These examples adapt Tanaab's
+[section](https://github.com/tanaabased/theme/blob/main/components/TMSSection.vue),
+[grid](https://github.com/tanaabased/theme/blob/main/components/TMSGrid.vue),
+[box](https://github.com/tanaabased/theme/blob/main/components/TMSBox.vue), and
+[list](https://github.com/tanaabased/theme/blob/main/components/TMSList.vue) components. They retain
+the stock VitePress theme and use its `--vp-c-*` variables; no replacement theme is required.
 
-These playgrounds use the same component and schema. The first exposes syntax-theme and appearance
-selectors while leaving every CSS variable at its package default. The second fixes the chrome to
-dark mode and applies a Tanaab-flavored set of instance variables. Edit either example and open its
-`tone` selector: the floating menu should match its owning playground rather than inheriting the
-other instance's styles. Together they also cover string, number, enum, and boolean props; a default
-text slot; and named text and HTML slots.
+## Section borders, orientation, and slots
+
+Both playgrounds expose meaningful title and content slots, two border states, and section
+orientation. The first also exposes syntax-theme and appearance selectors while leaving package CSS
+variables at their defaults. The second changes only this playground's chrome with instance-level
+variables.
 
 <div class="playground-style-comparison">
   <section>
@@ -178,18 +185,18 @@ text slot; and named text and HTML slots.
     </div>
     <ComponentPlayground
       :appearance="selectedAppearance"
-      :component="ShowcaseCard"
-      :schema="cardSchema"
-      :source="`${sourceBase}/ShowcaseCard.vue`"
+      :component="ExampleSection"
+      :schema="sectionSchema"
+      :source="`${sourceBase}/ExampleSection.vue`"
       :syntax-themes="selectedSyntaxThemes"
     />
   </section>
   <section>
     <h3>Tanaab-flavored override</h3>
     <ComponentPlayground
-      :component="ShowcaseCard"
-      :schema="cardSchema"
-      :source="`${sourceBase}/ShowcaseCard.vue`"
+      :component="ExampleSection"
+      :schema="sectionSchema"
+      :source="`${sourceBase}/ExampleSection.vue`"
       :style="tanaabPlaygroundStyle"
       appearance="dark"
     />
@@ -197,10 +204,10 @@ text slot; and named text and HTML slots.
 </div>
 
 ::: tip Try it
-In **Package defaults**, edit a value, choose another syntax theme pair, switch appearance, and copy
-the code. The edit, component preview, and copied component usage should remain intact. Only the code
-tokens change with the syntax pair; playground chrome remains governed by appearance and CSS
-variables. The neighboring playground keeps its own syntax pair.
+In **Package defaults**, toggle `border-top` and `border-bottom`, then change `orientation`. The
+preview's top and bottom rules should follow the Boolean states, and the title should move to the
+opposite side on a wide screen. Edit both slot bodies and copy the code; the preview and copied
+markup should contain those edits.
 :::
 
 The customized instance is ordinary Vue; no theme provider or global stylesheet is involved:
@@ -219,44 +226,57 @@ The customized instance is ordinary Vue; no theme provider or global stylesheet 
 />
 ```
 
-## Object arrays and demonstration controls
+## Grid columns and repeated boxes
 
-This contained preview covers editable object-array fields, including a nested enum field, plus
-demonstration-only selectors that choose a preset and visible item count. It also covers a named
-text slot and a default HTML slot.
+The number prop declares the real CSS grid column count. The demonstration-only `boxCount` control
+changes how many `ExampleBox` children appear; `auto` derives the child count from `columns`.
 
 <ComponentPlayground
-  :component="ShowcaseList"
+  :component="ExampleGrid"
+  :schema="gridSchema"
+  :source="`${sourceBase}/ExampleGrid.vue`"
+/>
+
+::: tip Try it
+Change `columns` from `3` to `2`, then select `4` for `box-count`. The preview should become a
+two-column grid containing four boxes, and copied markup should contain four `ExampleBox` children.
+:::
+
+## List presets and editable content
+
+The list combines a string prop, enum props, object-array presets, a visible-item count, and editable
+item fields. Its column and orientation values change actual layout state rather than narrating what
+the component might hypothetically do. An inspiring advance for software everywhere.
+
+<ComponentPlayground
+  :component="ExampleList"
   :schema="listSchema"
-  :source="`${sourceBase}/ShowcaseList.vue`"
+  :source="`${sourceBase}/ExampleList.vue`"
   preview-fit="contained"
 />
 
-## Repeated children
+::: tip Try it
+Select the `compact` content preset, set `item-count` to `2`, then edit the first label. The details
+should disappear, two edited items should remain, and copied markup should contain exactly those
+items. Change `columns` or `orientation` to verify the declared list layout in the preview.
+:::
 
-The `childCount` control changes how many child components are generated. Selecting `auto` derives
-the count from the editable `columns` prop.
-
-<ComponentPlayground
-  :component="ShowcaseStack"
-  :schema="stackSchema"
-  :source="`${sourceBase}/ShowcaseStack.vue`"
-/>
-
-Use **reset** beneath any example to restore its schema defaults. Each **source** link is supplied by
-the page rather than inferred by the package.
+Use **reset** beneath any example to restore its schema defaults. The border appearance and grid or
+list layout are human checks here; automated checks cover the corresponding DOM attributes, state,
+child counts, preview content, and copied markup.
 
 ## Events and initial state
 
-This example starts from host-supplied state rather than `cardSchema` defaults. Edit it, then use
+This example starts from host-supplied state rather than `sectionSchema` defaults. Edit it, then use
 **reset** to restore those supplied values. The panels below show the `copy` string and latest
-`update:state` payload, which makes the integration observable without ceremonial guesswork.
+`update:state` payload, which makes the integration observable without divination or interpretive
+dance.
 
 <ComponentPlayground
-:component="ShowcaseCard"
-:schema="cardSchema"
+:component="ExampleSection"
+:schema="sectionSchema"
 :initial-state="eventInitialState"
-:source="`${sourceBase}/ShowcaseCard.vue`"
+:source="`${sourceBase}/ExampleSection.vue`"
 @copy="recordCopy"
 @update:state="recordState"
 />
