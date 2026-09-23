@@ -338,7 +338,7 @@ function appendBooleanProp(code, regions, name, definition, value, options = {})
   }
 
   const start = code.length;
-  code += !active && defaultValue ? `:${attribute}="false"` : attribute;
+  code += includeInactiveBooleans || active || !defaultValue ? attribute : `:${attribute}="false"`;
 
   if (collectRegions) {
     regions.push({
