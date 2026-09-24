@@ -36,7 +36,7 @@
     "build:package": "bun run --bun vite build",
     "build:docs": "node ./node_modules/vitepress/bin/vitepress.js build docs",
     "dev:docs": "bun run build:package && node ./node_modules/vitepress/bin/vitepress.js dev docs",
-    "dev:example": "bun run build:package && bun run --bun vite --config examples/plain-vue/vite.local.config.js",
+    "dev:example": "bun run build:package && bun run --bun vite --config examples/vue/vite.local.config.js",
     "lint:eslint": "bun run --bun eslint .",
     "format:check": "bun run --bun prettier . --check --ignore-unknown",
     "format:write": "bun run --bun prettier . --write --ignore-unknown",
@@ -45,7 +45,7 @@
     "test:unit": "bun run --bun mocha \"test/*.spec.js\"",
     "test:components": "node ./node_modules/vitest/vitest.mjs run",
     "test:components:watch": "node ./node_modules/vitest/vitest.mjs",
-    "test:package": "bun run build:package && node scripts/test-package-task.js"
+    "leia": "bun ./node_modules/.bin/leia"
   },
   "peerDependencies": {
     "vitepress": "^1.6.0",
@@ -63,6 +63,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@lando/leia": "^2.0.0",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vue/compiler-dom": "^3.5.43",
     "@vue/test-utils": "^2.5.1",

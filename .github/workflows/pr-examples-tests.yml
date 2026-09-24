@@ -1,0 +1,74 @@
+name: Example Tests
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    name: Prepare candidate package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install Bun
+        uses: tanaabased/actions/setup-bun@v1
+      - name: Install Node
+        uses: tanaabased/actions/setup-node@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Build candidate package
+        run: bun run build:package
+      - name: Pack candidate package
+        id: pack
+        uses: tanaabased/actions/npm-pack@v1
+      - name: Upload candidate package
+        uses: actions/upload-artifact@v7
+        with:
+          name: candidate-package
+          path: ${{ steps.pack.outputs.tarball-path }}
+          if-no-files-found: error
+          retention-days: 1
+
+  examples:
+    name: ${{ matrix.example }}
+    needs: prepare
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        example:
+          - vue
+          - vitepress
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+      - name: Install Bun
+        uses: tanaabased/actions/setup-bun@v1
+      - name: Install Node
+        uses: tanaabased/actions/setup-node@v1
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --ignore-scripts
+      - name: Download candidate package
+        uses: actions/download-artifact@v8
+        with:
+          name: candidate-package
+          path: .temp/candidate-package
+      - name: Locate candidate package
+        id: candidate
+        shell: bash
+        run: |
+          tarball=$(find "$PWD/.temp/candidate-package" -maxdepth 1 -type f -name '*.tgz' -print -quit)
+          test -n "$tarball"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+      - name: Run Leia-backed example
+        uses: tanaabased/actions/run-leia@v1
+        env:
+          TARBALL: ${{ steps.candidate.outputs.tarball }}
+        with:
+          scenarios: examples/${{ matrix.example }}/README.md
+          shell: bash
+          retry: 0
+          stdin: true

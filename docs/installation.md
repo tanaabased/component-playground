@@ -152,6 +152,6 @@ Switch the site's appearance as a separate comparison. The VitePress adapter sho
 site, while the direct Vue component should continue using its `auto` appearance setting.
 
 These exercises are review aids for the Netlify preview. The component test suite owns interaction
-behavior; the package checks install one candidate tarball into separate Vue and VitePress consumers
-and build both through the public imports shown above. The plain Vue example remains the isolated
-consumer fixture; it does not need to become a second documentation site to prove that contract.
+behavior; the Leia scenarios in `examples/vue` and `examples/vitepress` install one candidate tarball
+into separate consumers and build both through the public imports shown above. The example projects
+are executable installation contracts, not a second documentation site. One is quite enough.

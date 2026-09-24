@@ -9,7 +9,7 @@
           :component="ExamplePanel"
           :schema="schema"
           :initial-state="initialState"
-          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
+          source="https://github.com/tanaabased/component-playground/blob/main/examples/vue/src/ExamplePanel.vue"
         />
       </section>
       <section>
@@ -20,7 +20,7 @@
           :component="ExamplePanel"
           :schema="schema"
           :initial-state="initialState"
-          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
+          source="https://github.com/tanaabased/component-playground/blob/main/examples/vue/src/ExamplePanel.vue"
         />
       </section>
     </div>

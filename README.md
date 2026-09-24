@@ -23,7 +23,6 @@ bun run test:components
 bun run test:components -- -t "test name"
 bun run test:components:watch
 bun run build
-bun run test:package
 bun run dev:docs
 ```
 
@@ -31,10 +30,11 @@ bun run dev:docs
 non-watch, focused, and watch modes using Vue Test Utils and jsdom; they verify behavior rather than
 browser layout or visual appearance.
 
-`test:package` builds the package, packs it once, installs that exact tarball into separate plain Vue
-and VitePress consumers, and runs both production builds. It requires Node 26 because the current
-Vite toolchain is part of the consumer check. `build` produces the package and the stock-theme
-VitePress site; `dev:docs` builds the local package first so the site exercises its public exports.
+The Leia-backed scenarios in `examples/vue` and `examples/vitepress` install the same candidate
+tarball into separate consumers and run both production builds in CI. They are installation-contract
+checks, while the unit and component suites continue to own runtime behavior. `build` produces the
+package and the stock-theme VitePress site; `dev:docs` builds the local package first so the site
+exercises its public exports.
 
 ## Deploy
 

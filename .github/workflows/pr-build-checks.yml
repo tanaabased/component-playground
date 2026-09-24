@@ -22,5 +22,3 @@ jobs:
         uses: tanaabased/actions/vitepress-build-check@v1
         with:
           build-command: bun run build
-      - name: Test packed package
-        run: node scripts/test-package-task.js
