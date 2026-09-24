@@ -8,8 +8,6 @@ imports.
 
 ```bash
 # should install the Component Playground package into a disposable VitePress consumer
-test -n "$COMPONENT_PLAYGROUND_PACKAGE"
-test -f "$COMPONENT_PLAYGROUND_PACKAGE"
 cp -R . "$TMPDIR/vitepress-consumer"
 cd "$TMPDIR/vitepress-consumer"
 npm install --ignore-scripts --no-audit --no-fund --package-lock=false "$COMPONENT_PLAYGROUND_PACKAGE"
