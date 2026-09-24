@@ -46,24 +46,6 @@ jobs:
       - name: Pack prepared package
         id: pack
         uses: tanaabased/actions/npm-pack@v1
-      - name: Test Vue consumer
-        uses: tanaabased/actions/run-leia@v1
-        env:
-          TARBALL: ${{ steps.pack.outputs.tarball-path }}
-        with:
-          scenarios: examples/vue/README.md
-          shell: bash
-          retry: 0
-          stdin: true
-      - name: Test VitePress consumer
-        uses: tanaabased/actions/run-leia@v1
-        env:
-          TARBALL: ${{ steps.pack.outputs.tarball-path }}
-        with:
-          scenarios: examples/vitepress/README.md
-          shell: bash
-          retry: 0
-          stdin: true
       - name: Dry-run publication
         uses: tanaabased/actions/publish-npm@v1
         with:

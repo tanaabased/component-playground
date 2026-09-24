@@ -1,17 +1,18 @@
 # Vue consumer
 
-This scenario installs one prepared package tarball into a minimal Vue application and builds the
-application through the package's documented public component and stylesheet imports.
+This scenario installs the prepared Component Playground package into a minimal Vue application
+and builds the application through the package's documented public component and stylesheet
+imports.
 
 ## Setup
 
 ```bash
-# should install the candidate package into a disposable Vue consumer
-test -n "$TARBALL"
-test -f "$TARBALL"
+# should install the Component Playground package into a disposable Vue consumer
+test -n "$COMPONENT_PLAYGROUND_PACKAGE"
+test -f "$COMPONENT_PLAYGROUND_PACKAGE"
 cp -R . "$TMPDIR/vue-consumer"
 cd "$TMPDIR/vue-consumer"
-npm install --ignore-scripts --no-audit --no-fund --package-lock=false "$TARBALL"
+npm install --ignore-scripts --no-audit --no-fund --package-lock=false "$COMPONENT_PLAYGROUND_PACKAGE"
 ```
 
 ## Testing

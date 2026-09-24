@@ -1,17 +1,18 @@
 # VitePress consumer
 
-This scenario installs the same prepared package tarball into a minimal VitePress site and builds
-the site through the documented public component, stylesheet, theme adapter, and syntax imports.
+This scenario installs the prepared Component Playground package into a minimal VitePress site and
+builds the site through the documented public component, stylesheet, theme adapter, and syntax
+imports.
 
 ## Setup
 
 ```bash
-# should install the candidate package into a disposable VitePress consumer
-test -n "$TARBALL"
-test -f "$TARBALL"
+# should install the Component Playground package into a disposable VitePress consumer
+test -n "$COMPONENT_PLAYGROUND_PACKAGE"
+test -f "$COMPONENT_PLAYGROUND_PACKAGE"
 cp -R . "$TMPDIR/vitepress-consumer"
 cd "$TMPDIR/vitepress-consumer"
-npm install --ignore-scripts --no-audit --no-fund --package-lock=false "$TARBALL"
+npm install --ignore-scripts --no-audit --no-fund --package-lock=false "$COMPONENT_PLAYGROUND_PACKAGE"
 ```
 
 ## Testing
