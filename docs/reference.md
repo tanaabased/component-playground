@@ -49,8 +49,10 @@ the demonstration state but are omitted from copied component markup.
 - `html` renders trusted demo HTML and remains editable.
 - `repeat` is available for the default slot and generates repeated child components from `items`.
 
-Repeat slots accept `component`, `componentName`, optional child `props`, and either `defaultCount`
-or a `countControl`. `autoCountProp` can derive an automatic count from a numeric parent prop.
+Repeat slots accept `component`, `componentName`, optional shared child `props`, and either
+`defaultCount` or a `countControl`. Each `items` entry may be a label string or
+`{ label, props }`; item props override shared props for that child. `autoCountProp` can derive an
+automatic count from a numeric parent prop.
 
 ### Playground options
 

@@ -2,6 +2,16 @@ import { markRaw } from 'vue';
 
 import ExampleBox from './components/ExampleBox.vue';
 
+const gridBoxStyles = {
+  brand:
+    '--example-box-background: var(--vp-c-brand-soft); --example-box-color: var(--vp-c-brand-1)',
+  danger:
+    '--example-box-background: var(--vp-c-danger-soft); --example-box-color: var(--vp-c-danger-1)',
+  tip: '--example-box-background: var(--vp-c-tip-soft); --example-box-color: var(--vp-c-tip-1)',
+  warning:
+    '--example-box-background: var(--vp-c-warning-soft); --example-box-color: var(--vp-c-warning-1)',
+};
+
 export const sectionSchema = {
   name: 'ExampleSection',
   props: {
@@ -35,12 +45,12 @@ export const gridSchema = {
   controls: {
     boxCount: {
       kind: 'enum',
-      options: ['1', '2', '3', '4', '5', '6', 'auto'],
-      default: '3',
+      options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', 'auto'],
+      default: '8',
     },
   },
   props: {
-    columns: { kind: 'number', default: 3 },
+    columns: { kind: 'number', default: 4 },
   },
   slots: {
     default: {
@@ -48,10 +58,53 @@ export const gridSchema = {
       component: markRaw(ExampleBox),
       componentName: 'ExampleBox',
       props: { type: 'title' },
-      items: ['Navigation', 'Search', 'Releases', 'Support', 'Brand', 'About'],
+      items: [
+        { label: 'Navigation', props: { link: '/guide/', style: gridBoxStyles.brand } },
+        { label: 'Reference', props: { link: '/reference/', style: gridBoxStyles.tip } },
+        { label: 'Examples', props: { link: '/examples/', style: gridBoxStyles.warning } },
+        {
+          label: 'Components',
+          props: { link: '/guide/#component-api', style: gridBoxStyles.danger },
+        },
+        {
+          label: 'Releases',
+          props: {
+            link: 'https://github.com/tanaabased/component-playground/releases',
+            style: gridBoxStyles.tip,
+          },
+        },
+        {
+          label: 'Source',
+          props: {
+            link: 'https://github.com/tanaabased/component-playground',
+            style: gridBoxStyles.brand,
+          },
+        },
+        {
+          label: 'Support',
+          props: {
+            link: 'https://github.com/tanaabased/component-playground/issues',
+            style: gridBoxStyles.warning,
+          },
+        },
+        {
+          label: 'Brand',
+          props: { link: 'https://github.com/tanaabased/theme', style: gridBoxStyles.danger },
+        },
+        { label: 'Install', props: { link: '/guide/#install', style: gridBoxStyles.brand } },
+        {
+          label: 'Composable',
+          props: { type: 'content', style: gridBoxStyles.tip },
+        },
+        {
+          label: 'Responsive',
+          props: { type: 'content', style: gridBoxStyles.warning },
+        },
+        { label: 'Accessible', props: { type: 'content', style: gridBoxStyles.danger } },
+      ],
       countControl: 'boxCount',
       autoCountProp: 'columns',
-      defaultCount: 3,
+      defaultCount: 8,
     },
   },
 };
@@ -66,8 +119,8 @@ export const listSchema = {
     },
     itemCount: {
       kind: 'enum',
-      options: ['1', '2', '3', '4', '5', '6'],
-      default: '4',
+      options: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+      default: '8',
     },
   },
   props: {
@@ -80,27 +133,62 @@ export const listSchema = {
       presetControl: 'contentPreset',
       countControl: 'itemCount',
       defaultPreset: 'linked',
-      defaultCount: 4,
+      defaultCount: 8,
       presets: {
         plain: [
           { label: 'Navigation' },
-          { label: 'Search' },
+          { label: 'Reference' },
+          { label: 'Examples' },
+          { label: 'Components' },
           { label: 'Releases' },
+          { label: 'Source' },
           { label: 'Support' },
           { label: 'Brand' },
           { label: 'About' },
+          { label: 'Install' },
+          { label: 'Changelog' },
+          { label: 'Contact' },
         ],
         linked: [
           { label: 'Navigation', link: '/guide/', attrs: { title: 'Open the guide' } },
-          { label: 'Search', link: '/reference/', attrs: { title: 'Open the reference' } },
+          { label: 'Reference', link: '/reference/', attrs: { title: 'Open the reference' } },
+          { label: 'Examples', link: '/examples/', attrs: { title: 'Review examples' } },
           {
-            label: 'GitHub',
-            link: 'https://github.com/tanaabased',
-            attrs: { target: '_blank', rel: 'noreferrer', title: 'Open Tanaab on GitHub' },
+            label: 'Components',
+            link: '/guide/#component-api',
+            attrs: { title: 'Review the component API' },
           },
-          { label: 'Support', link: '/examples/', attrs: { title: 'Review examples' } },
-          { label: 'Brand', link: '/styling/', attrs: { title: 'Review styling' } },
+          {
+            label: 'Releases',
+            link: 'https://github.com/tanaabased/component-playground/releases',
+            attrs: { target: '_blank', rel: 'noreferrer', title: 'Review releases on GitHub' },
+          },
+          {
+            label: 'Source',
+            link: 'https://github.com/tanaabased/component-playground',
+            attrs: { target: '_blank', rel: 'noreferrer', title: 'Open the source on GitHub' },
+          },
+          {
+            label: 'Support',
+            link: 'https://github.com/tanaabased/component-playground/issues',
+            attrs: { target: '_blank', rel: 'noreferrer', title: 'Open the issue tracker' },
+          },
+          {
+            label: 'Brand',
+            link: 'https://github.com/tanaabased/theme',
+            attrs: { target: '_blank', rel: 'noreferrer', title: 'Open the Tanaab theme' },
+          },
           { label: 'About', link: '/', attrs: { title: 'Return home' } },
+          { label: 'Install', link: '/guide/#install' },
+          {
+            label: 'Download example',
+            link: '/reference.html',
+            attrs: {
+              download: 'component-playground-reference.html',
+              title: 'Download the rendered reference',
+            },
+          },
+          { label: 'Contact', link: 'mailto:crew@example.com', attrs: { title: 'Email the crew' } },
         ],
       },
       fields: [
@@ -108,6 +196,7 @@ export const listSchema = {
         { path: 'link', kind: 'string', optional: true },
         { path: 'attrs.target', kind: 'enum', options: ['', '_blank'], optional: true },
         { path: 'attrs.rel', kind: 'string', optional: true },
+        { path: 'attrs.download', kind: 'string', optional: true },
         { path: 'attrs.title', kind: 'string', optional: true },
       ],
     },

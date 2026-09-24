@@ -15,11 +15,28 @@ describe('ExampleList', () => {
     ]);
     expect(listSchema.props.columns.options).toEqual(['none', '2', '3']);
     expect(listSchema.props.orientation.options).toEqual(['column', 'row']);
+    expect(listSchema.controls.itemCount.options).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+    ]);
+    expect(listSchema.props.items.presets.plain).toHaveLength(12);
+    expect(listSchema.props.items.presets.linked).toHaveLength(12);
     expect(listSchema.props.items.fields.map((field) => field.path)).toEqual([
       'label',
       'link',
       'attrs.target',
       'attrs.rel',
+      'attrs.download',
       'attrs.title',
     ]);
   });

@@ -39,8 +39,8 @@ const resolvedType = computed(() => (props.type === 'title' ? 'title' : 'content
   padding: 1rem;
   border: 1px solid var(--vp-c-divider);
   border-radius: 0.5rem;
-  background: var(--vp-c-bg-soft);
-  color: var(--vp-c-text-1);
+  background: var(--example-box-background, var(--vp-c-bg-soft));
+  color: var(--example-box-color, var(--vp-c-text-1));
   font-weight: 600;
   text-align: center;
   text-decoration: none;

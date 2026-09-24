@@ -461,11 +461,28 @@ export function getRepeatSlotItems(definition, state) {
 
   const items = Array.isArray(definition.items) ? definition.items : [];
   const count = Math.min(resolveRepeatCount(definition, state), items.length);
+  const sharedProps =
+    definition.props && typeof definition.props === 'object' && !Array.isArray(definition.props)
+      ? definition.props
+      : {};
 
-  return items.slice(0, count).map((item, index) => ({
-    key: `${index}-${item}`,
-    label: String(item ?? ''),
-  }));
+  return items.slice(0, count).map((item, index) => {
+    const itemDefinition =
+      item && typeof item === 'object' && !Array.isArray(item) ? item : { label: item };
+    const label = String(itemDefinition.label ?? '');
+    const itemProps =
+      itemDefinition.props &&
+      typeof itemDefinition.props === 'object' &&
+      !Array.isArray(itemDefinition.props)
+        ? itemDefinition.props
+        : {};
+
+    return {
+      key: `${index}-${label}`,
+      label,
+      props: { ...sharedProps, ...itemProps },
+    };
+  });
 }
 
 function appendSlot(code, regions, slotName, slotDefinition, value, options = {}) {
@@ -473,9 +490,9 @@ function appendSlot(code, regions, slotName, slotDefinition, value, options = {}
 
   if (slotDefinition.kind === 'repeat') {
     const childName = slotDefinition.componentName ?? 'Component';
-    const childProps = formatChildProps(slotDefinition.props);
 
     for (const item of getRepeatSlotItems(slotDefinition, options.state)) {
+      const childProps = formatChildProps(item.props);
       code += `\n  <${childName}${childProps}>${escapeSlotText(item.label)}</${childName}>`;
     }
 

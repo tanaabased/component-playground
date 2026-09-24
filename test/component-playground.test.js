@@ -340,9 +340,15 @@ describe('ComponentPlayground', () => {
       schema: listSchema,
     });
 
-    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(4);
-    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(4);
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(8);
+    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(8);
     expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/guide/');
+
+    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '12');
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(12);
+    expect(wrapper.get('.component-playground__preview a[download]').attributes('download')).toBe(
+      'component-playground-reference.html',
+    );
 
     await selectEnum(
       wrapper,
@@ -352,7 +358,7 @@ describe('ComponentPlayground', () => {
     );
     expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(0);
 
-    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '2');
+    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '7');
     await editRegion(
       wrapper,
       listSchema,
@@ -386,7 +392,7 @@ describe('ComponentPlayground', () => {
       '/crew/',
     );
 
-    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(2);
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(7);
     expect(wrapper.get('.example-list__header a').text()).toBe('Edited crew');
     expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/crew/');
     expect(wrapper.get('.component-playground__preview li a').text()).toBe('Flight director');
@@ -400,7 +406,7 @@ describe('ComponentPlayground', () => {
     expect(copied).toContain('header-link="/crew/"');
     expect(copied).toContain("label: 'Flight director'");
     expect(copied).toContain("link: '/flight/'");
-    expect(copied.match(/label: '/g)).toHaveLength(2);
+    expect(copied.match(/label: '/g)).toHaveLength(7);
     expect(copied).not.toContain('content-preset');
     vi.runAllTimers();
   });
@@ -454,8 +460,11 @@ describe('ComponentPlayground', () => {
       schema: gridSchema,
     });
 
-    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(3);
-    expect(wrapper.get('.example-grid').attributes('data-columns')).toBe('3');
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(8);
+    expect(wrapper.get('.example-grid').attributes('data-columns')).toBe('4');
+    expect(
+      wrapper.get('.component-playground__preview .example-box').attributes('style'),
+    ).toContain('--example-box-background');
 
     await editRegion(
       wrapper,
@@ -463,20 +472,26 @@ describe('ComponentPlayground', () => {
       (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'columns',
       '6',
     );
-    await selectEnum(wrapper, gridSchema, (candidate) => candidate.control === 'boxCount', '6');
+    await selectEnum(wrapper, gridSchema, (candidate) => candidate.control === 'boxCount', '12');
 
     const grid = wrapper.get('.example-grid');
     expect(grid.attributes('data-columns')).toBe('6');
     expect(grid.attributes('style')).toContain('--example-grid-columns: 6');
-    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(6);
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(12);
+    expect(
+      wrapper.findAll('.component-playground__preview .example-box[data-type="content"]'),
+    ).toHaveLength(3);
 
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
     const copied = wrapper.emitted('copy').at(-1)[0];
     expect(copied).toContain(':columns="6"');
-    expect(copied.match(/<ExampleBox/g)).toHaveLength(6);
-    expect(copied.match(/type="title"/g)).toHaveLength(6);
+    expect(copied.match(/<ExampleBox/g)).toHaveLength(12);
+    expect(copied.match(/type="title"/g)).toHaveLength(9);
+    expect(copied.match(/type="content"/g)).toHaveLength(3);
+    expect(copied).toContain('link="/guide/"');
+    expect(copied).toContain('--example-box-background');
     expect(copied).not.toContain('box-count');
     vi.runAllTimers();
   });

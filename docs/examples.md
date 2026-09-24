@@ -167,8 +167,9 @@ contain the selected type, link, and content.
 
 The upstream grid accepts numeric or numeric-string column counts from `1` through `6`; this
 playground exposes the number form so it also retains number-prop editing. The demonstration-only
-`boxCount` control changes how many title-type `ExampleBox` children appear; `auto` derives the child
-count from `columns`.
+`boxCount` control renders up to twelve `ExampleBox` children; `auto` derives the child count from
+`columns`. Per-item props mix links, box types, and VitePress-token colors while preserving the
+box component's upstream API.
 
 <ComponentPlayground
   :component="ExampleGrid"
@@ -177,16 +178,18 @@ count from `columns`.
 />
 
 ::: tip Try it
-Change `columns` from `3` to `6`, then select `6` for `box-count`. The preview should become a
-six-column grid containing six boxes, and copied markup should contain six title-type `ExampleBox`
-children.
+Change `columns` from `4` to `6`, then select `12` for `box-count`. The preview should become a
+six-column grid containing two full rows of colored boxes, and copied markup should contain twelve
+`ExampleBox` children with their individual links, types, and styles. Try `7` as well; odd counts are
+allowed, despite the grid gods' predictable disapproval.
 :::
 
 ## List presets and editable content
 
-The list exposes every upstream prop: header text and link, column and orientation modes, plus
-editable item labels, links, and safe link attributes. Presets and item count remain
-demonstration-only controls and do not leak into copied component usage.
+The list exposes every upstream prop: header text and link, column and orientation modes, plus up to
+twelve editable item labels, links, and safe link attributes. The linked preset mixes internal,
+external, email, and download links; the plain preset removes links entirely. Presets and item count
+remain demonstration-only controls and do not leak into copied component usage.
 
 <ComponentPlayground
   :component="ExampleList"
@@ -196,8 +199,9 @@ demonstration-only controls and do not leak into copied component usage.
 />
 
 ::: tip Try it
-Select the `plain` content preset, set `item-count` to `2`, then edit the first label and link. Change
-`header-link`, `columns`, and `orientation`. The preview should contain exactly two edited items,
+Set `item-count` to `12` and inspect the internal, external, email, and download links. Then select
+the `plain` content preset, set `item-count` to `7`, and edit the first label and link. Change
+`header-link`, `columns`, and `orientation`. The preview should contain exactly seven edited items,
 links should appear only when provided, and copied markup should contain the selected layout, header,
 items, and safe nested attributes.
 :::

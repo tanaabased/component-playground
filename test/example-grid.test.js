@@ -7,7 +7,23 @@ import { gridSchema } from '../docs/example-schemas.js';
 describe('ExampleGrid', () => {
   it('exposes all six column counts in the documentation schema', () => {
     expect(Object.keys(gridSchema.props)).toEqual(['columns']);
-    expect(gridSchema.controls.boxCount.options).toEqual(['1', '2', '3', '4', '5', '6', 'auto']);
+    expect(gridSchema.controls.boxCount.options).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+      'auto',
+    ]);
+    expect(gridSchema.slots.default.items).toHaveLength(12);
+    expect(gridSchema.slots.default.items.every((item) => item.props.style)).toBe(true);
     expect(Object.keys(gridSchema.slots)).toEqual(['default']);
   });
 

@@ -23,7 +23,7 @@
               :is="defaultRepeatSlot.component"
               v-for="item in defaultRepeatSlot.items"
               :key="item.key"
-              v-bind="defaultRepeatSlot.props"
+              v-bind="item.props"
             >
               {{ item.label }}
             </component>
@@ -165,7 +165,6 @@ const defaultRepeatSlot = computed(() => {
 
   return {
     component: definition.component,
-    props: definition.props ?? {},
     items: getRepeatSlotItems(definition, state),
   };
 });
