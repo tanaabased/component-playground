@@ -27,6 +27,7 @@ describe('VitePress integration contract', () => {
       'background-image: var(--vp-icon-copy)',
       'content: var(--vp-code-copy-copied-text-content)',
       'color: var(--vp-code-lang-color)',
+      'line-height: 24px',
       'border: 0',
       'outline: none',
       'display: contents',
