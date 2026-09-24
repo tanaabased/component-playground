@@ -7,8 +7,8 @@ hero:
   tagline: Proof of concept for @tanaab/component-playground 0.0.1
   actions:
     - theme: brand
-      text: Get started
-      link: /guide/
+      text: Install
+      link: /installation
     - theme: alt
       text: Try the examples
       link: /examples

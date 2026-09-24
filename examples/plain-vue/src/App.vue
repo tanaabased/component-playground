@@ -1,29 +1,31 @@
 <template>
   <main>
-    <h1>Plain Vue consumer</h1>
-    <p>Each instance uses the package stylesheet without a documentation theme.</p>
-    <div class="playground-grid">
-      <section>
-        <h2>Automatic appearance</h2>
-        <ComponentPlayground
-          :component="ExamplePanel"
-          :schema="schema"
-          :initial-state="initialState"
-          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
-        />
-      </section>
-      <section>
-        <h2>Instance override</h2>
-        <ComponentPlayground
-          appearance="dark"
-          class="custom-playground"
-          :component="ExamplePanel"
-          :schema="schema"
-          :initial-state="initialState"
-          source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
-        />
-      </section>
-    </div>
+    <h1>Plain Vue installation example</h1>
+    <p><strong>Stylesheet:</strong> <code>@tanaab/component-playground/style.css</code></p>
+    <p>
+      <strong>Appearance:</strong> standalone <code>auto</code> mode, which follows the operating
+      system color scheme without loading VitePress CSS.
+    </p>
+
+    <section>
+      <h2>Try it</h2>
+      <ol>
+        <li>Edit the default slot text.</li>
+        <li>Toggle the <code>visible</code> Boolean off and back on.</li>
+        <li>Use <strong>copy</strong>, then use <strong>reset</strong>.</li>
+      </ol>
+      <p>
+        The preview should hide while <code>visible</code> is off and return with the edited body
+        text when it is on. Copied markup should contain that text and the
+        <code>visible</code> attribute. Reset should restore the original body copy.
+      </p>
+    </section>
+
+    <ComponentPlayground
+      :component="ExamplePanel"
+      :schema="schema"
+      source="https://github.com/tanaabased/component-playground/blob/main/examples/plain-vue/src/ExamplePanel.vue"
+    />
   </main>
 </template>
 
@@ -70,12 +72,6 @@ const schema = {
     },
   },
 };
-
-const initialState = {
-  props: {
-    visible: false,
-  },
-};
 </script>
 
 <style>
@@ -87,14 +83,7 @@ body {
   font-family: system-ui, sans-serif;
 }
 
-.playground-grid {
-  display: grid;
-  gap: 2rem;
-}
-
-.custom-playground {
-  --component-playground-accent-color: #8be9fd;
-  --component-playground-focus-color: #f1fa8c;
-  --component-playground-border-radius: 0.75rem;
+main > section {
+  margin-block: 2rem;
 }
 </style>

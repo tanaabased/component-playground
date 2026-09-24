@@ -12,12 +12,14 @@ export default defineConfig({
   title: 'Component Playground',
   description: 'Schema-driven interactive examples for Vue 3 components.',
   cleanUrls: true,
+  ignoreDeadLinks: [/^\/plain-vue(?:\/index)?$/],
   lastUpdated: true,
   markdown: {
     theme: syntaxThemePairs.github,
   },
   themeConfig: {
     nav: [
+      { text: 'Installation', link: '/installation' },
       { text: 'Guide', link: '/guide/' },
       { text: 'Examples', link: '/examples' },
       { text: `v${packageMetadata.version}`, link: '/reference' },
@@ -26,6 +28,7 @@ export default defineConfig({
       {
         text: 'Start here',
         items: [
+          { text: 'Installation', link: '/installation' },
           { text: 'Guide', link: '/guide/' },
           { text: 'Capability examples', link: '/examples' },
           { text: 'Events and initial state', link: '/examples#events-and-initial-state' },

@@ -16,7 +16,10 @@ const repositoryRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const npmCli = realpathSync(join(dirname(process.execPath), 'npm'));
 const temporaryRoot = mkdtempSync(join(tmpdir(), 'component-playground-consumer-'));
 const packageDirectory = join(temporaryRoot, 'package');
-const consumerDirectory = join(temporaryRoot, 'consumer');
+const consumerDirectories = {
+  vue: join(temporaryRoot, 'vue-consumer'),
+  vitepress: join(temporaryRoot, 'vitepress-consumer'),
+};
 const commandEnvironment = {
   ...process.env,
   PATH: [dirname(process.execPath), process.env.PATH].filter(Boolean).join(delimiter),
@@ -45,7 +48,10 @@ function runNpm(args, cwd) {
 
 try {
   mkdirSync(packageDirectory, { recursive: true });
-  cpSync(join(repositoryRoot, 'examples/plain-vue'), consumerDirectory, { recursive: true });
+  cpSync(join(repositoryRoot, 'examples/plain-vue'), consumerDirectories.vue, { recursive: true });
+  cpSync(join(repositoryRoot, 'examples/vitepress'), consumerDirectories.vitepress, {
+    recursive: true,
+  });
 
   let tarball;
 
@@ -60,13 +66,15 @@ try {
     tarball = join(packageDirectory, filename);
   }
 
-  runNpm(
-    ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball],
-    consumerDirectory,
-  );
+  for (const consumerDirectory of Object.values(consumerDirectories)) {
+    runNpm(
+      ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball],
+      consumerDirectory,
+    );
+  }
 
   const installedPackage = join(
-    consumerDirectory,
+    consumerDirectories.vue,
     'node_modules',
     '@tanaab',
     'component-playground',
@@ -94,12 +102,21 @@ try {
     throw new Error('Plain Vue entry unexpectedly imports VitePress');
   }
 
-  runNpm(['run', 'build'], consumerDirectory);
+  runNpm(['run', 'build'], consumerDirectories.vue);
+  runNpm(['run', 'build'], consumerDirectories.vitepress);
 
-  const output = join(consumerDirectory, 'dist/index.html');
-  if (!existsSync(output)) throw new Error(`Consumer build did not create ${output}`);
+  const expectedOutputs = [
+    join(consumerDirectories.vue, 'dist/index.html'),
+    join(consumerDirectories.vitepress, 'docs/.vitepress/dist/index.html'),
+  ];
 
-  process.stdout.write(`Packed consumer built successfully with ${basename(tarball)}\n`);
+  for (const output of expectedOutputs) {
+    if (!existsSync(output)) throw new Error(`Consumer build did not create ${output}`);
+  }
+
+  process.stdout.write(
+    `Packed Vue and VitePress consumers built successfully with ${basename(tarball)}\n`,
+  );
 } finally {
   rmSync(temporaryRoot, { recursive: true, force: true });
 }

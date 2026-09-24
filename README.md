@@ -31,9 +31,10 @@ bun run dev:docs
 non-watch, focused, and watch modes using Vue Test Utils and jsdom; they verify behavior rather than
 browser layout or visual appearance.
 
-`test:package` builds the package, packs it, installs that exact tarball into the plain Vue example,
-and runs the example's production build. It requires Node 26 because the current Vite toolchain is
-part of the consumer check. `build` produces both the package and the stock-theme VitePress site;
+`test:package` builds the package, packs it once, installs that exact tarball into separate plain Vue
+and VitePress consumers, and runs both production builds. It requires Node 26 because the current
+Vite toolchain is part of the consumer check. `build` produces the package, the stock-theme
+VitePress site, and the isolated plain Vue preview beneath the published documentation output;
 `dev:docs` builds the local package first so the site exercises its public exports.
 
 ## Deploy
@@ -42,7 +43,8 @@ The documentation site is ready for Netlify through [`netlify.toml`](netlify.tom
 `tanaabased/component-playground` as an existing Git repository, use `main` as the production branch,
 and leave the base directory unset. The repository configuration installs the locked dependencies
 with Bun 1.4.2, runs the package and documentation build, and publishes
-`docs/.vitepress/dist`. No deployment secrets are required.
+`docs/.vitepress/dist`. The VitePress site is served at `/` and the standalone Vue application at
+`/plain-vue/`. No deployment secrets are required.
 
 Package releases use npm trusted publishing. Configure the package's GitHub trusted publisher for
 `tanaabased/component-playground` and workflow `release.yml` before releasing. The
@@ -78,5 +80,6 @@ VitePress consumers can opt into `@tanaab/component-playground/vitepress` and
 `@tanaab/component-playground/vitepress.css`. The helper registers the same component with the
 site's reactive appearance and a shared Markdown/playground Shiki pair; ordinary Vue imports do not
 load VitePress.
-The [guide](docs/guide/index.md), [live capability examples](docs/examples.md), and [schema and styling
-reference](docs/reference.md) document the complete contract.
+The [installation paths](docs/installation.md), [guide](docs/guide/index.md), [live capability
+examples](docs/examples.md), and [schema and styling reference](docs/reference.md) document the
+complete contract.
