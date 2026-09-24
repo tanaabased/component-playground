@@ -334,6 +334,46 @@ describe('utils/codegen', () => {
     assert.doesNotMatch(generated.copyCode, /card-count/);
   });
 
+  it('should merge shared and per-item props for repeated children', () => {
+    const schema = {
+      name: 'ExampleGrid',
+      slots: {
+        default: {
+          kind: 'repeat',
+          componentName: 'ExampleBox',
+          props: { type: 'title' },
+          items: [
+            'Plain',
+            {
+              label: 'Linked',
+              props: {
+                link: '/guide/',
+                style: '--example-box-background: pink',
+                type: 'content',
+              },
+            },
+          ],
+          defaultCount: 2,
+        },
+      },
+    };
+    const state = createPlaygroundState(schema);
+    const items = getRepeatSlotItems(schema.slots.default, state);
+    const generated = generateComponentUsage(schema, state);
+
+    assert.deepEqual(items[0].props, { type: 'title' });
+    assert.deepEqual(items[1].props, {
+      type: 'content',
+      link: '/guide/',
+      style: '--example-box-background: pink',
+    });
+    assert.match(generated.copyCode, /<ExampleBox type="title">Plain<\/ExampleBox>/);
+    assert.match(
+      generated.copyCode,
+      /<ExampleBox type="content" link="\/guide\/" style="--example-box-background: pink">Linked<\/ExampleBox>/,
+    );
+  });
+
   it('should generate object-array props while omitting empty optional fields from copy', () => {
     const schema = {
       name: 'ExampleList',

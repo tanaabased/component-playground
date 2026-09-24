@@ -8,10 +8,18 @@ import { defineComponent, markRaw, nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 
 import ComponentPlayground from '../components/ComponentPlayground.vue';
-import ShowcaseCard from '../docs/components/ShowcaseCard.vue';
-import ShowcaseItem from '../docs/components/ShowcaseItem.vue';
-import ShowcaseList from '../docs/components/ShowcaseList.vue';
-import ShowcaseStack from '../docs/components/ShowcaseStack.vue';
+import ExampleBox from '../docs/components/ExampleBox.vue';
+import ExampleGrid from '../docs/components/ExampleGrid.vue';
+import ExampleList from '../docs/components/ExampleList.vue';
+import ExampleLogo from '../docs/components/ExampleLogo.vue';
+import ExampleSection from '../docs/components/ExampleSection.vue';
+import {
+  boxSchema,
+  gridSchema,
+  listSchema,
+  logoSchema,
+  sectionSchema,
+} from '../docs/example-schemas.js';
 import { createPlaygroundState, generateComponentUsage } from '../utils/codegen.js';
 
 const BooleanPreview = defineComponent({
@@ -28,93 +36,6 @@ const booleanSchema = {
   name: 'BooleanPreview',
   props: {
     enabled: { kind: 'boolean', default: false },
-  },
-};
-
-const cardSchema = {
-  name: 'ShowcaseCard',
-  props: {
-    heading: { kind: 'string', default: 'Editable card' },
-    count: { kind: 'number', default: 3 },
-    tone: { kind: 'enum', options: ['neutral', 'accent'], default: 'neutral' },
-    visible: { kind: 'boolean', default: true },
-  },
-  slots: {
-    eyebrow: { kind: 'text', default: 'Named text slot' },
-    title: { kind: 'html', default: '<strong>Named HTML slot</strong>' },
-    default: { kind: 'text', default: 'Default text slot.' },
-  },
-};
-
-const listSchema = {
-  name: 'ShowcaseList',
-  controls: {
-    contentPreset: {
-      kind: 'enum',
-      options: ['brief', 'detailed'],
-      default: 'detailed',
-    },
-    visibleItems: {
-      kind: 'enum',
-      options: ['1', '2', '3'],
-      default: '3',
-    },
-  },
-  props: {
-    items: {
-      kind: 'object-array',
-      presetControl: 'contentPreset',
-      countControl: 'visibleItems',
-      defaultPreset: 'detailed',
-      defaultCount: 3,
-      presets: {
-        brief: [
-          { label: 'Ada', meta: { role: 'Engineer' } },
-          { label: 'Grace', meta: { role: 'Writer' } },
-          { label: 'Evelyn', meta: { role: 'Designer' } },
-        ],
-        detailed: [
-          { label: 'Ada', meta: { role: 'Engineer' }, note: 'Builds useful things' },
-          { label: 'Grace', meta: { role: 'Writer' }, note: 'Explains difficult things' },
-          { label: 'Evelyn', meta: { role: 'Designer' }, note: 'Makes them comprehensible' },
-        ],
-      },
-      fields: [
-        { path: 'label', kind: 'string' },
-        { path: 'meta.role', kind: 'enum', options: ['Engineer', 'Designer', 'Writer'] },
-        { path: 'note', kind: 'string', optional: true },
-      ],
-    },
-  },
-  slots: {
-    heading: { kind: 'text', default: 'Named text heading' },
-    default: { kind: 'html', default: '<em>Default HTML slot.</em>' },
-  },
-};
-
-const stackSchema = {
-  name: 'ShowcaseStack',
-  controls: {
-    childCount: {
-      kind: 'enum',
-      options: ['1', '2', '3', 'auto'],
-      default: '2',
-    },
-  },
-  props: {
-    columns: { kind: 'number', default: 3 },
-  },
-  slots: {
-    default: {
-      kind: 'repeat',
-      component: markRaw(ShowcaseItem),
-      componentName: 'ShowcaseItem',
-      props: { quiet: true },
-      items: ['First child', 'Second child', 'Third child'],
-      countControl: 'childCount',
-      autoCountProp: 'columns',
-      defaultCount: 2,
-    },
   },
 };
 
@@ -262,79 +183,98 @@ describe('ComponentPlayground', () => {
     vi.runAllTimers();
   });
 
-  it('toggles a default-true demo prop by keyboard and preserves explicit false copy output', async () => {
+  it('toggles a default-true section border and preserves explicit false copy output', async () => {
     const wrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
     });
-    const visible = findRegion(wrapper, cardSchema, (candidate) => candidate.prop === 'visible');
+    const borderTop = findRegion(
+      wrapper,
+      sectionSchema,
+      (candidate) => candidate.prop === 'borderTop',
+    );
 
-    expect(wrapper.find('.component-playground__preview article').exists()).toBe(true);
-    await activateWithKeyboard(wrapper, visible);
+    expect(wrapper.get('.example-section').attributes('data-border-top')).toBe('true');
+    await activateWithKeyboard(wrapper, borderTop);
 
-    expect(wrapper.find('.component-playground__preview article').exists()).toBe(false);
+    expect(wrapper.get('.example-section').attributes('data-border-top')).toBe('false');
     expect(wrapper.find('.component-playground-code__region--inactive').exists()).toBe(true);
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
-    expect(wrapper.emitted('copy').at(-1)[0]).toContain(':visible="false"');
+    expect(wrapper.emitted('copy').at(-1)[0]).toContain(':border-top="false"');
     vi.runAllTimers();
   });
 
-  it('edits text and number regions, emits state, and resets to authored initial state', async () => {
+  it('edits meaningful text and HTML slots, copies them, and resets authored initial state', async () => {
     const initialState = {
       props: {
-        heading: 'State supplied by the host',
-        count: 7,
-        tone: 'accent',
+        borderTop: false,
+        borderBottom: true,
+        orientation: 'right',
       },
       slots: {
-        default: 'Authored body copy.',
+        title: 'State supplied by the host',
+        default: '<p>Authored <strong>body copy</strong>.</p>',
       },
     };
     const wrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
       initialState,
     });
 
-    expect(wrapper.get('article footer').text()).toContain('7 items');
-    expect(wrapper.get('article p').text()).toBe('Authored body copy.');
+    expect(wrapper.get('.example-section__title').text()).toBe('State supplied by the host');
+    expect(wrapper.get('.example-section__content strong').text()).toBe('body copy');
 
     await editRegion(
       wrapper,
-      cardSchema,
-      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'count',
-      '11',
+      sectionSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'title',
+      'Edited mission title',
     );
     await editRegion(
       wrapper,
-      cardSchema,
-      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'heading',
-      'Edited heading',
+      sectionSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'default',
+      '<p>Edited <em>HTML content</em>.</p>',
     );
 
-    expect(wrapper.get('article footer').text()).toContain('11 items');
-    expect(latestState(wrapper, cardSchema).props.heading).toBe('Edited heading');
+    expect(wrapper.get('.example-section__title').text()).toBe('Edited mission title');
+    expect(wrapper.get('.example-section__content em').text()).toBe('HTML content');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('<template #title>');
+    expect(copied).toContain('Edited mission title');
+    expect(copied).toContain('<p>Edited <em>HTML content</em>.</p>');
+    vi.runAllTimers();
+    vi.useRealTimers();
 
     await wrapper.get('.component-playground__action').trigger('click');
     await settle();
 
-    expect(wrapper.get('article footer').text()).toContain('7 items');
-    expect(latestState(wrapper, cardSchema).props.heading).toBe('State supplied by the host');
+    expect(wrapper.get('.example-section__title').text()).toBe('State supplied by the host');
+    expect(wrapper.get('.example-section__content strong').text()).toBe('body copy');
   });
 
   it('selects enums, closes them with Escape, and propagates appearance updates', async () => {
     const wrapper = await mountPlayground({
       appearance: 'dark',
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
       style: {
         '--component-playground-background-color': '#071a1e',
       },
     });
 
-    const tone = findRegion(wrapper, cardSchema, (candidate) => candidate.prop === 'tone');
+    const orientation = findRegion(
+      wrapper,
+      sectionSchema,
+      (candidate) => candidate.prop === 'orientation',
+    );
     const nativeGetComputedStyle = globalThis.getComputedStyle;
     const computedStyleShim = vi
       .spyOn(globalThis, 'getComputedStyle')
@@ -359,7 +299,7 @@ describe('ComponentPlayground', () => {
           },
         });
       });
-    await activateWithKeyboard(wrapper, tone);
+    await activateWithKeyboard(wrapper, orientation);
     computedStyleShim.mockRestore();
 
     let menu = document.body.querySelector('[role="group"]');
@@ -369,66 +309,252 @@ describe('ComponentPlayground', () => {
     menu.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
     await settle();
     expect(document.body.querySelector('[role="group"]')).toBeNull();
-    expect(wrapper.get('article').attributes('data-tone')).toBe('neutral');
+    expect(wrapper.get('.example-section').attributes('data-orientation')).toBe('left');
 
-    await selectEnum(wrapper, cardSchema, (candidate) => candidate.prop === 'tone', 'accent');
-    expect(wrapper.get('article').attributes('data-tone')).toBe('accent');
+    await selectEnum(
+      wrapper,
+      sectionSchema,
+      (candidate) => candidate.prop === 'orientation',
+      'right',
+    );
+    expect(wrapper.get('.example-section').attributes('data-orientation')).toBe('right');
 
     await wrapper.setProps({ appearance: 'light' });
     await settle();
     expect(wrapper.get('.component-playground').attributes('data-appearance')).toBe('light');
     expect(wrapper.get('.component-playground-code').attributes('data-appearance')).toBe('light');
 
-    const updatedTone = findRegion(wrapper, cardSchema, (candidate) => candidate.prop === 'tone');
-    await activateWithKeyboard(wrapper, updatedTone);
+    const updatedOrientation = findRegion(
+      wrapper,
+      sectionSchema,
+      (candidate) => candidate.prop === 'orientation',
+    );
+    await activateWithKeyboard(wrapper, updatedOrientation);
     menu = document.body.querySelector('[role="group"]');
     expect(menu.dataset.appearance).toBe('light');
   });
 
-  it('applies object-array preset and count controls to the ShowcaseList preview', async () => {
+  it('applies list presets and counts, then edits preview content and copied markup', async () => {
     const wrapper = await mountPlayground({
-      component: ShowcaseList,
+      component: ExampleList,
       schema: listSchema,
     });
 
-    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(3);
-    expect(wrapper.get('.component-playground__preview').text()).toContain('Builds useful things');
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(8);
+    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(8);
+    expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/guide/');
+
+    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '12');
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(12);
+    expect(wrapper.get('.component-playground__preview a[download]').attributes('download')).toBe(
+      'component-playground-reference.html',
+    );
 
     await selectEnum(
       wrapper,
       listSchema,
       (candidate) => candidate.control === 'contentPreset',
-      'brief',
+      'plain',
     );
-    expect(wrapper.get('.component-playground__preview').text()).not.toContain(
-      'Builds useful things',
+    expect(wrapper.findAll('.component-playground__preview li a')).toHaveLength(0);
+
+    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'itemCount', '7');
+    await editRegion(
+      wrapper,
+      listSchema,
+      (candidate) =>
+        candidate.kind === 'array-prop-field' &&
+        candidate.prop === 'items' &&
+        candidate.index === 0 &&
+        candidate.path === 'label',
+      'Flight director',
+    );
+    await editRegion(
+      wrapper,
+      listSchema,
+      (candidate) =>
+        candidate.kind === 'array-prop-field' &&
+        candidate.prop === 'items' &&
+        candidate.index === 0 &&
+        candidate.path === 'link',
+      '/flight/',
+    );
+    await editRegion(
+      wrapper,
+      listSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'header',
+      'Edited crew',
+    );
+    await editRegion(
+      wrapper,
+      listSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'headerLink',
+      '/crew/',
     );
 
-    await selectEnum(wrapper, listSchema, (candidate) => candidate.control === 'visibleItems', '1');
-    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(1);
+    expect(wrapper.findAll('.component-playground__preview li')).toHaveLength(7);
+    expect(wrapper.get('.example-list__header a').text()).toBe('Edited crew');
+    expect(wrapper.get('.example-list__header a').attributes('href')).toBe('/crew/');
+    expect(wrapper.get('.component-playground__preview li a').text()).toBe('Flight director');
+    expect(wrapper.get('.component-playground__preview li a').attributes('href')).toBe('/flight/');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('header="Edited crew"');
+    expect(copied).toContain('header-link="/crew/"');
+    expect(copied).toContain("label: 'Flight director'");
+    expect(copied).toContain("link: '/flight/'");
+    expect(copied.match(/label: '/g)).toHaveLength(7);
+    expect(copied).not.toContain('content-preset');
+    vi.runAllTimers();
   });
 
-  it('updates repeated ShowcaseStack children through the real count control', async () => {
+  it('updates box type, link, and slot content in preview and copied markup', async () => {
     const wrapper = await mountPlayground({
-      component: ShowcaseStack,
-      schema: stackSchema,
+      component: ExampleBox,
+      schema: boxSchema,
     });
 
-    expect(wrapper.findAll('.component-playground__preview article')).toHaveLength(2);
-    await selectEnum(wrapper, stackSchema, (candidate) => candidate.control === 'childCount', '3');
+    expect(wrapper.get('.example-box').element.tagName).toBe('A');
+    expect(wrapper.get('.example-box').attributes('data-type')).toBe('title');
 
-    expect(wrapper.findAll('.component-playground__preview article')).toHaveLength(3);
+    await selectEnum(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'type',
+      'content',
+    );
+    await editRegion(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'link',
+      '/support/',
+    );
+    await editRegion(
+      wrapper,
+      boxSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'default',
+      'Support',
+    );
+
+    const box = wrapper.get('.example-box');
+    expect(box.attributes('data-type')).toBe('content');
+    expect(box.attributes('href')).toBe('/support/');
+    expect(box.text()).toBe('Support');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('type="content"');
+    expect(copied).toContain('link="/support/"');
+    expect(copied).toContain('Support');
+    vi.runAllTimers();
+  });
+
+  it('updates declared grid columns and repeated boxes in preview and copied markup', async () => {
+    const wrapper = await mountPlayground({
+      component: ExampleGrid,
+      schema: gridSchema,
+    });
+
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(8);
+    expect(wrapper.get('.example-grid').attributes('data-columns')).toBe('4');
     expect(
-      editorView(wrapper)
-        .state.doc.toString()
-        .match(/<ShowcaseItem/g),
+      wrapper.get('.component-playground__preview .example-box').attributes('style'),
+    ).toContain('--example-box-background');
+
+    await editRegion(
+      wrapper,
+      gridSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'columns',
+      '6',
+    );
+    await selectEnum(wrapper, gridSchema, (candidate) => candidate.control === 'boxCount', '12');
+
+    const grid = wrapper.get('.example-grid');
+    expect(grid.attributes('data-columns')).toBe('6');
+    expect(grid.attributes('style')).toContain('--example-grid-columns: 6');
+    expect(wrapper.findAll('.component-playground__preview .example-box')).toHaveLength(12);
+    expect(
+      wrapper.findAll('.component-playground__preview .example-box[data-type="content"]'),
     ).toHaveLength(3);
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain(':columns="6"');
+    expect(copied.match(/<ExampleBox/g)).toHaveLength(12);
+    expect(copied.match(/type="title"/g)).toHaveLength(9);
+    expect(copied.match(/type="content"/g)).toHaveLength(3);
+    expect(copied).toContain('link="/guide/"');
+    expect(copied).toContain('--example-box-background');
+    expect(copied).not.toContain('box-count');
+    vi.runAllTimers();
+  });
+
+  it('updates the accessible logo layout, colors, and link in preview and copied markup', async () => {
+    const wrapper = await mountPlayground({
+      component: ExampleLogo,
+      schema: logoSchema,
+    });
+    const logo = wrapper.get('.example-logo');
+
+    expect(logo.attributes('aria-label')).toBe('Tanaab Maneuvering Systems');
+    expect(logo.attributes('href')).toBe('/');
+    expect(logo.attributes('data-type')).toBe('centered');
+    expect(logo.attributes('style')).toContain('--example-logo-color: var(--vp-c-text-1)');
+    expect(logo.get('.example-logo__image').attributes('aria-hidden')).toBe('true');
+
+    await selectEnum(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'type',
+      'right',
+    );
+
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'color',
+      '#db2777',
+    );
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'background',
+      '#fff7ed',
+    );
+    await editRegion(
+      wrapper,
+      logoSchema,
+      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'link',
+      'https://github.com/tanaabased',
+    );
+
+    expect(logo.attributes('href')).toBe('https://github.com/tanaabased');
+    expect(logo.attributes('data-type')).toBe('right');
+    expect(logo.attributes('style')).toContain('--example-logo-color: #db2777');
+    expect(logo.attributes('style')).toContain('--example-logo-background: #fff7ed');
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+    const copied = wrapper.emitted('copy').at(-1)[0];
+    expect(copied).toContain('type="right"');
+    expect(copied).toContain('color="#db2777"');
+    expect(copied).toContain('background="#fff7ed"');
+    expect(copied).toContain('link="https://github.com/tanaabased"');
+    vi.runAllTimers();
   });
 
   it('uses the default syntax pair and changes token themes without losing playground state', async () => {
     const wrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
     });
     const defaultStyles = await waitForTokenStyles(wrapper);
 
@@ -441,12 +567,12 @@ describe('ComponentPlayground', () => {
 
     await editRegion(
       wrapper,
-      cardSchema,
-      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'count',
-      '9',
+      sectionSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'title',
+      'Theme-safe title',
     );
     const editedCode = editorView(wrapper).state.doc.toString();
-    expect(wrapper.get('article footer').text()).toContain('9 items');
+    expect(wrapper.get('.example-section__title').text()).toBe('Theme-safe title');
 
     vi.useFakeTimers();
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
@@ -466,10 +592,8 @@ describe('ComponentPlayground', () => {
 
     expect(wrapper.get('.component-playground').attributes('data-appearance')).toBe('dark');
     expect(editorView(wrapper).state.doc.toString()).toBe(editedCode);
-    expect(wrapper.get('article footer').text()).toContain('9 items');
-    expect(
-      wrapper.findAll('.component-playground-code__token').some((token) => token.text() === '9'),
-    ).toBe(true);
+    expect(wrapper.get('.example-section__title').text()).toBe('Theme-safe title');
+    expect(editorView(wrapper).state.doc.toString()).toContain('Theme-safe title');
     expect(wrapper.find('.component-playground-code__region').exists()).toBe(true);
 
     vi.useFakeTimers();
@@ -482,12 +606,12 @@ describe('ComponentPlayground', () => {
 
   it('keeps syntax theme choices independent between playground instances', async () => {
     const defaultWrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
     });
     const contrastingWrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
       syntaxThemes: contrastingSyntaxThemes,
     });
 
@@ -514,8 +638,8 @@ describe('ComponentPlayground', () => {
     const currentLight = deferred();
     const currentDark = deferred();
     const wrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
       syntaxThemes: {
         light: () => staleLight.promise,
         dark: () => staleDark.promise,
@@ -541,8 +665,8 @@ describe('ComponentPlayground', () => {
 
   it('keeps failed theme loads readable and editable', async () => {
     const wrapper = await mountPlayground({
-      component: ShowcaseCard,
-      schema: cardSchema,
+      component: ExampleSection,
+      schema: sectionSchema,
       syntaxThemes: {
         light: () => Promise.reject(new Error('light theme unavailable')),
         dark: () => Promise.reject(new Error('dark theme unavailable')),
@@ -551,17 +675,17 @@ describe('ComponentPlayground', () => {
     await settle();
 
     expect(tokenStyles(wrapper)).toHaveLength(0);
-    expect(editorView(wrapper).state.doc.toString()).toContain('<ShowcaseCard');
+    expect(editorView(wrapper).state.doc.toString()).toContain('<ExampleSection');
 
     await editRegion(
       wrapper,
-      cardSchema,
-      (candidate) => candidate.kind === 'prop-value' && candidate.prop === 'count',
-      '12',
+      sectionSchema,
+      (candidate) => candidate.kind === 'slot-text' && candidate.slot === 'title',
+      'Readable fallback',
     );
 
-    expect(wrapper.get('article footer').text()).toContain('12 items');
-    expect(editorView(wrapper).state.doc.toString()).toContain(':count="12"');
+    expect(wrapper.get('.example-section__title').text()).toBe('Readable fallback');
+    expect(editorView(wrapper).state.doc.toString()).toContain('Readable fallback');
   });
 
   it('cleans up an editor unmounted before asynchronous setup finishes', async () => {
