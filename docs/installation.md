@@ -1,6 +1,11 @@
 <script setup>
+import { ComponentPlayground as VueComponentPlayground } from '@tanaab/component-playground';
+
 import ExampleSection from './components/ExampleSection.vue';
 import { sectionSchema } from './example-schemas.js';
+
+const exampleSource =
+  'https://github.com/tanaabased/component-playground/blob/main/docs/components/ExampleSection.vue';
 
 const vitePressCustomization = {
   '--component-playground-accent-color': 'var(--vp-c-brand-1)',
@@ -10,10 +15,10 @@ const vitePressCustomization = {
 
 # Installation
 
-Component Playground has two installation paths. Plain Vue uses the standalone component and
-stylesheet. VitePress adds a theme wrapper, shared syntax configuration, and an integration
-stylesheet. Pick the path your application actually runs; loading both and hoping CSS develops good
-judgment is not a strategy.
+Component Playground is one Vue component with two explicit consumption paths. Vue applications
+import it directly with the standalone stylesheet. VitePress sites can add an optional theme
+adapter, shared syntax configuration, and integration stylesheet. The live examples below use the
+same component and schema so the integration is the only meaningful difference.
 
 ## Vue
 
@@ -48,19 +53,18 @@ const schema = {
 </template>
 ```
 
-- **Stylesheet:** `@tanaab/component-playground/style.css`
+- **Component:** the public Vue export, imported directly as `VueComponentPlayground` on this page.
+- **Stylesheet:** `@tanaab/component-playground/style.css`.
 - **Appearance:** `auto` follows the operating system color scheme. Set `appearance="light"` or
   `appearance="dark"` when the surrounding application has a fixed mode.
+- **VitePress integration:** none. This instance has no `data-vitepress` marker, so the optional
+  `vitepress.css` rules do not apply even though the documentation page also loads that stylesheet.
 
-[Open the standalone Vue example](/plain-vue/). It is built as a separate application and does not
-load VitePress or `@tanaab/component-playground/vitepress.css`.
-
-### Try it
-
-In the standalone example, edit the default slot text, toggle the `visible` Boolean off and back on,
-use **copy**, then use **reset**. The preview should disappear only while `visible` is off and return
-with the edited body text. Copied markup should contain that text and the `visible` attribute; reset
-should restore the original body copy.
+<VueComponentPlayground
+  :component="ExampleSection"
+  :schema="sectionSchema"
+  :source="exampleSource"
+/>
 
 ## VitePress
 
@@ -126,9 +130,10 @@ variables on one instance; the demonstrated component keeps its own styles.
   :component="ExampleSection"
   :schema="sectionSchema"
   :style="vitePressCustomization"
-  source="https://github.com/tanaabased/component-playground/blob/main/docs/components/ExampleSection.vue"
+  :source="exampleSource"
 />
 
+- **Component:** the globally registered wrapper around the same public Vue component.
 - **Stylesheets:** `@tanaab/component-playground/style.css` provides structure and standalone
   defaults; `@tanaab/component-playground/vitepress.css` maps the wrapper to VitePress variables.
 - **Appearance:** `withComponentPlayground` uses `useData().isDark`, so the playground follows the
@@ -136,13 +141,17 @@ variables on one instance; the demonstrated component keeps its own styles.
 - **Customization:** the live example sets `--component-playground-accent-color` and
   `--component-playground-border-radius` on that instance.
 
-### Try it
+## Try both paths
 
-Edit the title slot, toggle the `border-top` Boolean off and back on, use **copy**, then use
-**reset**. The preview heading and border should follow those edits. Copied markup should contain
-the edited title and `border-top`; reset should restore the original title and Boolean state. Switch
-the site's appearance as a separate check: the playground chrome and syntax colors should follow it.
+For each live example, edit the title slot, toggle the `border-top` Boolean off and back on, use
+**copy**, then use **reset**. Both previews should follow the same component edits. Copied markup
+should contain the edited title and `border-top`; reset should restore the original title and
+Boolean state.
+
+Switch the site's appearance as a separate comparison. The VitePress adapter should follow the
+site, while the direct Vue component should continue using its `auto` appearance setting.
 
 These exercises are review aids for the Netlify preview. The component test suite owns interaction
 behavior; the package checks install one candidate tarball into separate Vue and VitePress consumers
-and build both through the public imports shown above.
+and build both through the public imports shown above. The plain Vue example remains the isolated
+consumer fixture; it does not need to become a second documentation site to prove that contract.

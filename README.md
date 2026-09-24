@@ -33,9 +33,8 @@ browser layout or visual appearance.
 
 `test:package` builds the package, packs it once, installs that exact tarball into separate plain Vue
 and VitePress consumers, and runs both production builds. It requires Node 26 because the current
-Vite toolchain is part of the consumer check. `build` produces the package, the stock-theme
-VitePress site, and the isolated plain Vue preview beneath the published documentation output;
-`dev:docs` builds the local package first so the site exercises its public exports.
+Vite toolchain is part of the consumer check. `build` produces the package and the stock-theme
+VitePress site; `dev:docs` builds the local package first so the site exercises its public exports.
 
 ## Deploy
 
@@ -43,8 +42,7 @@ The documentation site is ready for Netlify through [`netlify.toml`](netlify.tom
 `tanaabased/component-playground` as an existing Git repository, use `main` as the production branch,
 and leave the base directory unset. The repository configuration installs the locked dependencies
 with Bun 1.4.2, runs the package and documentation build, and publishes
-`docs/.vitepress/dist`. The VitePress site is served at `/` and the standalone Vue application at
-`/plain-vue/`. No deployment secrets are required.
+`docs/.vitepress/dist`. No deployment secrets are required.
 
 Package releases use npm trusted publishing. Configure the package's GitHub trusted publisher for
 `tanaabased/component-playground` and workflow `release.yml` before releasing. The

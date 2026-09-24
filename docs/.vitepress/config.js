@@ -12,7 +12,6 @@ export default defineConfig({
   title: 'Component Playground',
   description: 'Schema-driven interactive examples for Vue 3 components.',
   cleanUrls: true,
-  ignoreDeadLinks: [/^\/plain-vue(?:\/index)?$/],
   lastUpdated: true,
   markdown: {
     theme: syntaxThemePairs.github,
