@@ -1,4 +1,12 @@
-import { cpSync, existsSync, mkdirSync, mkdtempSync, realpathSync, rmSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, delimiter, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -56,6 +64,36 @@ try {
     ['install', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball],
     consumerDirectory,
   );
+
+  const installedPackage = join(
+    consumerDirectory,
+    'node_modules',
+    '@tanaab',
+    'component-playground',
+  );
+  const installedMetadata = JSON.parse(
+    readFileSync(join(installedPackage, 'package.json'), 'utf8'),
+  );
+  const expectedEntries = [
+    installedMetadata.exports['.'].import,
+    installedMetadata.exports['./style.css'],
+    installedMetadata.exports['./vitepress'].import,
+    installedMetadata.exports['./vitepress.css'],
+  ];
+
+  for (const entry of expectedEntries) {
+    const installedEntry = join(installedPackage, entry);
+    if (!existsSync(installedEntry)) throw new Error(`Packed package is missing ${entry}`);
+  }
+
+  const mainEntry = readFileSync(
+    join(installedPackage, installedMetadata.exports['.'].import),
+    'utf8',
+  );
+  if (/from\s+["']vitepress["']/.test(mainEntry)) {
+    throw new Error('Plain Vue entry unexpectedly imports VitePress');
+  }
+
   runNpm(['run', 'build'], consumerDirectory);
 
   const output = join(consumerDirectory, 'dist/index.html');

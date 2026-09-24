@@ -1,0 +1,16 @@
+.component-playground {
+  --component-playground-background-color: var(--vp-code-block-bg);
+  --component-playground-foreground-color: var(--vp-code-block-color, var(--vp-c-text-1));
+  --component-playground-muted-color: var(--vp-c-text-2);
+  --component-playground-border-color: var(--vp-code-block-divider-color, var(--vp-c-divider));
+  --component-playground-accent-color: var(--vp-c-brand-1);
+  --component-playground-hover-background-color: var(--vp-c-default-soft);
+  --component-playground-active-background-color: var(--vp-c-brand-soft);
+  --component-playground-focus-color: var(--vp-c-brand-1);
+  --component-playground-font-family: var(--vp-font-family-base);
+  --component-playground-monospace-font-family: var(--vp-font-family-mono);
+  --component-playground-font-size: var(--vp-code-font-size);
+  --component-playground-line-height: var(--vp-code-line-height);
+  --component-playground-code-padding: 20px 24px;
+  --component-playground-border-radius: 8px;
+}

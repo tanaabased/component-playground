@@ -73,5 +73,10 @@ Use the `appearance` prop and the documented `--component-playground-*` variable
 instance; floating enum menus retain their owning instance's values after teleporting to `body`.
 Use `syntaxThemes` with exact Shiki theme imports to share a light/dark syntax pair without bundling
 the complete theme registry.
+
+VitePress consumers can opt into `@tanaab/component-playground/vitepress` and
+`@tanaab/component-playground/vitepress.css`. The helper registers the same component with the
+site's reactive appearance and a shared Markdown/playground Shiki pair; ordinary Vue imports do not
+load VitePress.
 The [guide](docs/guide/index.md), [live capability examples](docs/examples.md), and [schema and styling
 reference](docs/reference.md) document the complete contract.

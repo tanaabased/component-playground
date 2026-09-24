@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue';
+import { ComponentPlayground as StandaloneComponentPlayground } from '@tanaab/component-playground';
 
 import ExampleBox from './components/ExampleBox.vue';
+import ExampleComparison from './components/ExampleComparison.vue';
 import ExampleGrid from './components/ExampleGrid.vue';
 import ExampleList from './components/ExampleList.vue';
 import ExampleLogo from './components/ExampleLogo.vue';
@@ -17,6 +19,19 @@ import { syntaxThemePairs } from './syntax-themes.js';
 
 const sourceBase =
   'https://github.com/tanaabased/component-playground/blob/main/docs/components';
+
+const integratedHtmlSchema = {
+  name: 'article',
+  props: {
+    class: { kind: 'enum', options: ['launch-card', 'mission-card'], default: 'launch-card' },
+  },
+  slots: {
+    default: {
+      kind: 'html',
+      default: '<h3>Launch sequence</h3>\n  <p>All systems are ready.</p>',
+    },
+  },
+};
 
 const tanaabPlaygroundStyle = {
   '--component-playground-background-color': '#071a1e',
@@ -76,6 +91,41 @@ uses Tanaab's four upstream SVG layouts: left, right, centered, and mark.
 They retain the stock VitePress theme and use its `--vp-c-*` variables; no replacement theme is
 required.
 
+## VitePress appearance and syntax integration
+
+The static Markdown block and the editable playground start with identical HTML. Both receive the
+GitHub light/dark Shiki pair from this site's shared configuration, while the optional VitePress
+stylesheet maps the playground's code surface, typography, borders, controls, and floating menus to
+VitePress variables.
+
+<ExampleComparison>
+  <template #static>
+
+<!-- prettier-ignore -->
+```html
+<article
+  class="launch-card">
+  <h3>Launch sequence</h3>
+  <p>All systems are ready.</p>
+</article>
+```
+
+  </template>
+  <template #editable>
+    <ComponentPlayground component="article" :schema="integratedHtmlSchema" />
+  </template>
+</ExampleComparison>
+
+::: tip Try it on the Netlify preview
+Switch the site's appearance, then activate the `class` value in the editable example to open its
+enum menu. The playground, syntax colors, controls, and teleported menu should follow the selected
+site appearance even when it differs from the operating system.
+:::
+
+Markdown highlighting is generated at site build time. The runtime `syntaxThemes` selector below
+can recolor that playground, but it cannot recolor the static block above; the integration does not
+smuggle in a live Markdown renderer merely to pretend otherwise.
+
 ## Section borders, orientation, and slots
 
 Both playgrounds expose meaningful title and content slots, two border states, and section
@@ -102,7 +152,7 @@ variables.
         </select>
       </label>
     </div>
-    <ComponentPlayground
+    <StandaloneComponentPlayground
       :appearance="selectedAppearance"
       :component="ExampleSection"
       :schema="sectionSchema"
@@ -112,7 +162,7 @@ variables.
   </section>
   <section>
     <h3>Tanaab-flavored override</h3>
-    <ComponentPlayground
+    <StandaloneComponentPlayground
       :component="ExampleSection"
       :schema="sectionSchema"
       :source="`${sourceBase}/ExampleSection.vue`"

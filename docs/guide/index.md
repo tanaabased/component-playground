@@ -141,21 +141,43 @@ See the [live event and initial-state example](/examples#events-and-initial-stat
 
 ## VitePress usage
 
-Register the public component in a local VitePress theme extension:
+Use the optional VitePress helper and stylesheet in a local theme extension. The helper registers
+the existing standalone component, supplies the shared Shiki pair, and follows VitePress's reactive
+appearance instead of the operating system:
 
 ```js
 // docs/.vitepress/theme/index.js
-import { ComponentPlayground } from '@tanaab/component-playground';
 import '@tanaab/component-playground/style.css';
+import { withComponentPlayground } from '@tanaab/component-playground/vitepress';
+import '@tanaab/component-playground/vitepress.css';
+import { useData } from 'vitepress';
 import DefaultTheme from 'vitepress/theme';
 
-export default {
-  extends: DefaultTheme,
-  enhanceApp({ app }) {
-    app.component('ComponentPlayground', ComponentPlayground);
-  },
-};
+import { syntaxThemePairs } from '../../syntax-themes.js';
+
+export default withComponentPlayground(DefaultTheme, {
+  syntaxThemes: syntaxThemePairs.github,
+  useData,
+});
 ```
+
+Use that same resolved pair in VitePress's Markdown configuration:
+
+```js
+// docs/.vitepress/config.js
+import { defineConfig } from 'vitepress';
+
+import { syntaxThemePairs } from '../syntax-themes.js';
+
+export default defineConfig({
+  markdown: { theme: syntaxThemePairs.github },
+});
+```
+
+Static Markdown code is highlighted during the site build. Switching VitePress appearance selects
+the corresponding colors already generated for that pair; changing a playground's `syntaxThemes`
+prop at runtime does not recolor existing Markdown. A live Markdown renderer would be an absurdly
+large machine for this tiny job, so the integration does not add one.
 
 Markdown pages can then use `<ComponentPlayground>` with page-local schemas and imported example
 components. See the [capability examples](/examples) for the complete proof of concept and the
