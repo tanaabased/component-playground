@@ -107,6 +107,7 @@ describe('VitePress integration', () => {
     const onCopy = vi.fn();
     const onUpdateState = vi.fn();
     const wrapper = await mountRegisteredPlayground(githubThemes, {
+      language: 'html',
       source: 'https://example.com/ExampleSection.vue',
       previewFit: 'contained',
       onCopy,
@@ -116,9 +117,12 @@ describe('VitePress integration', () => {
 
     expect(playground.props('schema')).toStrictEqual(sectionSchema);
     expect(playground.props('previewFit')).toBe('contained');
+    expect(playground.props('language')).toBe('html');
     expect(playground.props('source')).toBe('https://example.com/ExampleSection.vue');
     expect(playground.props('syntaxThemes')).toStrictEqual(githubThemes);
     expect(wrapper.get('.component-playground').attributes('data-appearance')).toBe('light');
+    expect(wrapper.get('.component-playground').attributes('data-vitepress')).toBe('');
+    expect(wrapper.get('.component-playground__language').text()).toBe('html');
     expect(wrapper.get('.component-playground-code').attributes('data-appearance')).toBe('light');
 
     vitepressState.isDark.value = true;

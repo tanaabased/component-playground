@@ -14,6 +14,7 @@ function createVitePressPlayground(useData, syntaxThemes) {
         h(ComponentPlayground, {
           ...attrs,
           appearance: isDark.value ? 'dark' : 'light',
+          'data-vitepress': '',
           syntaxThemes: attrs.syntaxThemes ?? syntaxThemes,
           onCopy: (usage) => emit('copy', usage),
           'onUpdate:state': (state) => emit('update:state', state),

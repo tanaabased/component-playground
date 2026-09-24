@@ -59,48 +59,48 @@ export const gridSchema = {
       componentName: 'ExampleBox',
       props: { type: 'title' },
       items: [
-        { label: 'Navigation', props: { link: '/guide/', style: gridBoxStyles.brand } },
-        { label: 'Reference', props: { link: '/reference/', style: gridBoxStyles.tip } },
-        { label: 'Examples', props: { link: '/examples/', style: gridBoxStyles.warning } },
+        { label: '1', props: { link: '/guide/', style: gridBoxStyles.brand } },
+        { label: '2', props: { link: '/reference/', style: gridBoxStyles.tip } },
+        { label: '3', props: { link: '/examples/', style: gridBoxStyles.warning } },
         {
-          label: 'Components',
+          label: '4',
           props: { link: '/guide/#component-api', style: gridBoxStyles.danger },
         },
         {
-          label: 'Releases',
+          label: '5',
           props: {
             link: 'https://github.com/tanaabased/component-playground/releases',
             style: gridBoxStyles.tip,
           },
         },
         {
-          label: 'Source',
+          label: '6',
           props: {
             link: 'https://github.com/tanaabased/component-playground',
             style: gridBoxStyles.brand,
           },
         },
         {
-          label: 'Support',
+          label: '7',
           props: {
             link: 'https://github.com/tanaabased/component-playground/issues',
             style: gridBoxStyles.warning,
           },
         },
         {
-          label: 'Brand',
+          label: '8',
           props: { link: 'https://github.com/tanaabased/theme', style: gridBoxStyles.danger },
         },
-        { label: 'Install', props: { link: '/guide/#install', style: gridBoxStyles.brand } },
+        { label: '9', props: { link: '/guide/#install', style: gridBoxStyles.brand } },
         {
-          label: 'Composable',
+          label: '10',
           props: { type: 'content', style: gridBoxStyles.tip },
         },
         {
-          label: 'Responsive',
+          label: '11',
           props: { type: 'content', style: gridBoxStyles.warning },
         },
-        { label: 'Accessible', props: { type: 'content', style: gridBoxStyles.danger } },
+        { label: '12', props: { type: 'content', style: gridBoxStyles.danger } },
       ],
       countControl: 'boxCount',
       autoCountProp: 'columns',

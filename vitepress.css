@@ -1,4 +1,4 @@
-.component-playground {
+.component-playground[data-vitepress] {
   --component-playground-background-color: var(--vp-code-block-bg);
   --component-playground-foreground-color: var(--vp-code-block-color, var(--vp-c-text-1));
   --component-playground-muted-color: var(--vp-c-text-2);
@@ -15,7 +15,11 @@
   --component-playground-border-radius: 8px;
 }
 
-.component-playground__code > .component-playground__copy {
+.component-playground[data-vitepress] .component-playground__code {
+  border: 0;
+}
+
+.component-playground[data-vitepress] .component-playground__code > .component-playground__copy {
   direction: ltr;
   top: 12px;
   right: 12px;
@@ -38,23 +42,35 @@
     opacity 0.25s;
 }
 
-.component-playground__code:hover > .component-playground__copy,
-.component-playground__code > .component-playground__copy:focus {
+.component-playground[data-vitepress]
+  .component-playground__code:hover
+  > .component-playground__copy,
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy:focus {
   opacity: 1;
 }
 
-.component-playground__code > .component-playground__copy:hover,
-.component-playground__code > .component-playground__copy.copied {
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy:hover,
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy.copied {
   border-color: var(--vp-code-copy-code-hover-border-color);
   background-color: var(--vp-code-copy-code-hover-bg);
 }
 
-.component-playground__code > .component-playground__copy.copied {
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy.copied {
   border-radius: 0 4px 4px 0;
   background-image: var(--vp-icon-copied);
 }
 
-.component-playground__code > .component-playground__copy.copied::before {
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy.copied::before {
   position: relative;
   top: -1px;
   transform: translateX(calc(-100% - 1px));
@@ -75,4 +91,24 @@
   font-weight: 500;
   text-align: center;
   white-space: nowrap;
+}
+
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__language {
+  top: 2px;
+  right: 8px;
+  color: var(--vp-code-lang-color);
+  font-size: 12px;
+}
+
+.component-playground[data-vitepress]
+  .component-playground__code:hover
+  > .component-playground__copy
+  + .component-playground__language,
+.component-playground[data-vitepress]
+  .component-playground__code
+  > .component-playground__copy:focus
+  + .component-playground__language {
+  opacity: 0;
 }

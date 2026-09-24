@@ -56,10 +56,11 @@ function getShikiHighlighter() {
     import('shiki/core'),
     import('shiki/engine/javascript'),
     import('shiki/langs/html.mjs'),
-  ]).then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, html]) => {
+    import('shiki/langs/vue.mjs'),
+  ]).then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, html, vue]) => {
     return createHighlighterCore({
       themes: [],
-      langs: [html.default],
+      langs: [html.default, vue.default],
       engine: createJavaScriptRegexEngine(),
     });
   });
@@ -111,6 +112,11 @@ const props = defineProps({
   appearance: {
     type: String,
     default: 'auto',
+  },
+  language: {
+    type: String,
+    default: 'vue',
+    validator: (value) => ['vue', 'html'].includes(value),
   },
   syntaxThemes: {
     type: Object,
@@ -347,7 +353,7 @@ async function refreshSyntaxDecorations(code) {
     if (sequence !== highlightSequence || !view || !syntaxCompartment) return;
 
     const tokenLines = highlighter.codeToTokensWithThemes(code, {
-      lang: 'html',
+      lang: props.language,
       themes: {
         light: lightTheme,
         dark: darkTheme,
@@ -528,7 +534,7 @@ watch(
 );
 
 watch(
-  () => [props.syntaxThemes?.light, props.syntaxThemes?.dark],
+  () => [props.language, props.syntaxThemes?.light, props.syntaxThemes?.dark],
   () => {
     if (!view) return;
 

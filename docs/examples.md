@@ -95,7 +95,7 @@ required.
 
 The static Markdown block and the editable playground start with identical HTML. Both receive the
 GitHub light/dark Shiki pair from this site's shared configuration, while the optional VitePress
-stylesheet maps the playground's code surface, typography, borders, controls, and floating menus to
+stylesheet maps the playground's code surface, typography, controls, and floating menus to
 VitePress variables.
 
 <ExampleComparison>
@@ -112,7 +112,7 @@ VitePress variables.
 
   </template>
   <template #editable>
-    <ComponentPlayground component="article" :schema="integratedHtmlSchema" />
+    <ComponentPlayground component="article" language="html" :schema="integratedHtmlSchema" />
   </template>
 </ExampleComparison>
 
@@ -126,16 +126,17 @@ Markdown highlighting is generated at site build time. The runtime `syntaxThemes
 can recolor that playground, but it cannot recolor the static block above; the integration does not
 smuggle in a live Markdown renderer merely to pretend otherwise.
 
-## Section borders, orientation, and slots
+## Standalone and VitePress styling
 
-Both playgrounds expose meaningful title and content slots, two border states, and section
-orientation. The first also exposes syntax-theme and appearance selectors while leaving package CSS
-variables at their defaults. The second changes only this playground's chrome with instance-level
-variables.
+Both playgrounds use the same component and schema. The first imports the raw Vue component and
+receives only the standalone package stylesheet. The second uses the site's globally registered
+VitePress wrapper, which follows the site appearance and applies the optional integration
+stylesheet. This is the comparison; previously the global stylesheet cheerfully themed both and
+made the heading a work of fiction.
 
 <div class="playground-style-comparison">
   <section>
-    <h3>Package defaults</h3>
+    <h3>Standalone Vue defaults</h3>
     <div class="playground-settings">
       <label>
         Syntax theme pair
@@ -161,25 +162,34 @@ variables.
     />
   </section>
   <section>
-    <h3>Tanaab-flavored override</h3>
-    <StandaloneComponentPlayground
+    <h3>VitePress integration</h3>
+    <ComponentPlayground
       :component="ExampleSection"
       :schema="sectionSchema"
       :source="`${sourceBase}/ExampleSection.vue`"
-      :style="tanaabPlaygroundStyle"
-      appearance="dark"
     />
   </section>
 </div>
 
 ::: tip Try it
-In **Package defaults**, toggle `border-top` and `border-bottom`, then change `orientation`. The
-preview's top and bottom rules should follow the Boolean states, and the title should move to the
-opposite side on a wide screen. Edit both slot bodies and copy the code; the preview and copied
-markup should contain those edits.
+Compare the standalone border, text copy control, and manual appearance selector with the integrated
+borderless code block, VitePress copy control, and site appearance. Both should show `vue` in the
+top-right corner. Hover the integrated code to reveal its copy control, then toggle `border-top`,
+`border-bottom`, and `orientation`; both implementations should retain identical component behavior.
 :::
 
-The customized instance is ordinary Vue; no theme provider or global stylesheet is involved:
+### Instance-level override
+
+The standalone component can still take an entirely local treatment. This instance is ordinary Vue;
+no theme provider or integration stylesheet is involved:
+
+<StandaloneComponentPlayground
+  :component="ExampleSection"
+  :schema="sectionSchema"
+  :source="`${sourceBase}/ExampleSection.vue`"
+  :style="tanaabPlaygroundStyle"
+  appearance="dark"
+/>
 
 ```vue
 <ComponentPlayground
@@ -218,8 +228,8 @@ contain the selected type, link, and content.
 The upstream grid accepts numeric or numeric-string column counts from `1` through `6`; this
 playground exposes the number form so it also retains number-prop editing. The demonstration-only
 `boxCount` control renders up to twelve `ExampleBox` children; `auto` derives the child count from
-`columns`. Per-item props mix links, box types, and VitePress-token colors while preserving the
-box component's upstream API.
+`columns`. Numeric labels stay legible in narrow cells, while per-item props still mix links, box
+types, and VitePress-token colors without changing the box component's upstream API.
 
 <ComponentPlayground
   :component="ExampleGrid"

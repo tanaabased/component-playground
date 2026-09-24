@@ -8,6 +8,7 @@ import { defineComponent, markRaw, nextTick } from 'vue';
 import { describe, expect, it, vi } from 'vitest';
 
 import ComponentPlayground from '../components/ComponentPlayground.vue';
+import InteractiveCode from '../components/InteractiveCode.vue';
 import ExampleBox from '../docs/components/ExampleBox.vue';
 import ExampleGrid from '../docs/components/ExampleGrid.vue';
 import ExampleList from '../docs/components/ExampleList.vue';
@@ -602,6 +603,25 @@ describe('ComponentPlayground', () => {
     expect(wrapper.emitted('copy').at(-1)[0]).toBe(copiedCode);
     vi.runAllTimers();
     vi.useRealTimers();
+  });
+
+  it('labels and highlights Vue by default and accepts HTML explicitly', async () => {
+    const wrapper = await mountPlayground({
+      component: ExampleSection,
+      schema: sectionSchema,
+    });
+
+    expect(wrapper.get('.component-playground').attributes('data-vitepress')).toBeUndefined();
+    expect(wrapper.get('.component-playground__language').text()).toBe('vue');
+    expect(wrapper.getComponent(InteractiveCode).props('language')).toBe('vue');
+    await waitForTokenStyles(wrapper);
+
+    await wrapper.setProps({ language: 'html' });
+    await settle();
+
+    expect(wrapper.get('.component-playground__language').text()).toBe('html');
+    expect(wrapper.getComponent(InteractiveCode).props('language')).toBe('html');
+    await waitForTokenStyles(wrapper);
   });
 
   it('keeps syntax theme choices independent between playground instances', async () => {

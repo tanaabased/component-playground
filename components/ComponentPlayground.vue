@@ -54,10 +54,12 @@
         >
           {{ copied ? 'copied' : 'copy' }}
         </button>
+        <span class="component-playground__language">{{ props.language }}</span>
 
         <InteractiveCode
           :appearance="resolvedAppearance"
           :code="generated.code"
+          :language="props.language"
           :regions="generated.regions"
           :syntax-themes="props.syntaxThemes"
           @select-enum="selectEnum"
@@ -128,6 +130,11 @@ const props = defineProps({
     type: String,
     default: 'auto',
     validator: (value) => ['auto', 'light', 'dark'].includes(value),
+  },
+  language: {
+    type: String,
+    default: 'vue',
+    validator: (value) => ['vue', 'html'].includes(value),
   },
   syntaxThemes: {
     type: Object,
@@ -479,6 +486,21 @@ onBeforeUnmount(() => window.clearTimeout(copyTimeoutId));
 .component-playground__copy:focus-visible {
   outline: var(--_component-playground-focus-width) solid var(--_component-playground-focus-color);
   outline-offset: var(--_component-playground-focus-width);
+}
+
+.component-playground__language {
+  position: absolute;
+  top: 0.5rem;
+  right: 4.75rem;
+  z-index: 2;
+  color: var(--_component-playground-muted-color);
+  font-size: 0.8125em;
+  font-weight: 500;
+  pointer-events: none;
+  transition:
+    color 0.4s,
+    opacity 0.4s;
+  user-select: none;
 }
 
 .component-playground__links {

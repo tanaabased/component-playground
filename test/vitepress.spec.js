@@ -26,11 +26,16 @@ describe('VitePress integration contract', () => {
       'background-color: var(--vp-code-copy-code-bg)',
       'background-image: var(--vp-icon-copy)',
       'content: var(--vp-code-copy-copied-text-content)',
+      'color: var(--vp-code-lang-color)',
+      'border: 0',
     ];
 
     for (const mapping of expectedMappings) {
       assert.match(stylesheet, new RegExp(mapping.replace(/[()]/g, '\\$&')));
     }
+
+    assert.match(stylesheet, /^\.component-playground\[data-vitepress\] \{/m);
+    assert.doesNotMatch(stylesheet, /^\.component-playground \{/m);
   });
 
   it('should apply the relative VitePress code size only once', () => {

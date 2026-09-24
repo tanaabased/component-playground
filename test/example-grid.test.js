@@ -23,6 +23,20 @@ describe('ExampleGrid', () => {
       'auto',
     ]);
     expect(gridSchema.slots.default.items).toHaveLength(12);
+    expect(gridSchema.slots.default.items.map((item) => item.label)).toEqual([
+      '1',
+      '2',
+      '3',
+      '4',
+      '5',
+      '6',
+      '7',
+      '8',
+      '9',
+      '10',
+      '11',
+      '12',
+    ]);
     expect(gridSchema.slots.default.items.every((item) => item.props.style)).toBe(true);
     expect(Object.keys(gridSchema.slots)).toEqual(['default']);
   });
