@@ -44,19 +44,25 @@
 
     <div class="component-playground__code-area">
       <div class="component-playground__code">
-        <button
-          class="component-playground__copy"
-          type="button"
-          :aria-label="copyLabel"
-          :title="copyLabel"
-          @click="copyCode"
-        >
-          {{ copied ? 'copied' : 'copy' }}
-        </button>
+        <div class="component-playground__code-meta">
+          <button
+            class="component-playground__copy"
+            :class="{ copied }"
+            type="button"
+            :aria-label="copyLabel"
+            :title="copyLabel"
+            @click="copyCode"
+          >
+            {{ copied ? 'copied' : 'copy' }}
+          </button>
+          <span class="component-playground__language">{{ props.language }}</span>
+          <span class="component-playground__code-separator" aria-hidden="true">|</span>
+        </div>
 
         <InteractiveCode
           :appearance="resolvedAppearance"
           :code="generated.code"
+          :language="props.language"
           :regions="generated.regions"
           :syntax-themes="props.syntaxThemes"
           @select-enum="selectEnum"
@@ -87,7 +93,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import InteractiveCode from './InteractiveCode.vue';
 import {
@@ -128,6 +134,11 @@ const props = defineProps({
     default: 'auto',
     validator: (value) => ['auto', 'light', 'dark'].includes(value),
   },
+  language: {
+    type: String,
+    default: 'vue',
+    validator: (value) => ['vue', 'html'].includes(value),
+  },
   syntaxThemes: {
     type: Object,
     default: null,
@@ -144,6 +155,8 @@ const emit = defineEmits(['copy', 'update:state']);
 
 const copied = ref(false);
 const state = reactive(createPlaygroundState(props.schema, props.initialState));
+
+let copyTimeoutId;
 
 const generated = computed(() => generateComponentUsage(props.schema, state));
 const previewProps = computed(() => getPreviewProps(props.schema, state));
@@ -280,15 +293,22 @@ function selectEnum({ control, prop, region, value }) {
   state.props[prop] = value;
 }
 
-async function copyCode() {
+async function copyCode(event) {
+  const button = event.currentTarget;
+
   await navigator.clipboard.writeText(generated.value.copyCode);
   copied.value = true;
   emit('copy', generated.value.copyCode);
 
-  window.setTimeout(() => {
+  window.clearTimeout(copyTimeoutId);
+  copyTimeoutId = window.setTimeout(() => {
     copied.value = false;
-  }, 1400);
+    button.blur();
+    copyTimeoutId = undefined;
+  }, 2000);
 }
+
+onBeforeUnmount(() => window.clearTimeout(copyTimeoutId));
 </script>
 
 <style scoped>
@@ -440,35 +460,60 @@ async function copyCode() {
   outline-offset: var(--_component-playground-focus-width);
 }
 
-.component-playground__copy {
+.component-playground__code-meta {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.75rem;
+  right: 0.875rem;
   z-index: 3;
-  padding: var(--_component-playground-control-padding-block)
-    var(--_component-playground-control-padding-inline);
-  border-color: var(--_component-playground-border-color);
-  border-style: var(--_component-playground-border-style);
-  border-width: var(--_component-playground-border-width);
-  border-radius: var(--_component-playground-border-radius);
-  background: var(--_component-playground-background-color);
-  color: var(--_component-playground-foreground-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--_component-playground-muted-color);
+  font-size: 0.8125em;
+  line-height: 1;
+}
+
+.component-playground__copy {
+  order: 3;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--_component-playground-accent-color);
   cursor: pointer;
   font: inherit;
-  font-size: 0.8125em;
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 0.15em;
 }
 
 .component-playground__copy:hover {
-  background: var(--_component-playground-hover-background-color);
+  text-decoration: underline;
 }
 
 .component-playground__copy:active {
-  background: var(--_component-playground-active-background-color);
+  color: var(--_component-playground-foreground-color);
 }
 
 .component-playground__copy:focus-visible {
   outline: var(--_component-playground-focus-width) solid var(--_component-playground-focus-color);
   outline-offset: var(--_component-playground-focus-width);
+}
+
+.component-playground__language {
+  order: 1;
+  font-weight: 500;
+  pointer-events: none;
+  transition:
+    color 0.4s,
+    opacity 0.4s;
+  user-select: none;
+}
+
+.component-playground__code-separator {
+  order: 2;
+  opacity: 0.65;
+  pointer-events: none;
+  user-select: none;
 }
 
 .component-playground__links {

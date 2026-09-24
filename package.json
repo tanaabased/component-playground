@@ -17,20 +17,25 @@
   },
   "files": [
     "dist/",
-    "README.md"
+    "README.md",
+    "vitepress.css"
   ],
   "exports": {
     ".": {
       "import": "./dist/component-playground.js"
     },
     "./style.css": "./dist/style.css",
+    "./vitepress": {
+      "import": "./dist/vitepress.js"
+    },
+    "./vitepress.css": "./vitepress.css",
     "./package.json": "./package.json"
   },
   "scripts": {
     "build": "bun run build:package && bun run build:docs",
     "build:package": "bun run --bun vite build",
-    "build:docs": "bun run --bun vitepress build docs",
-    "dev:docs": "bun run build:package && bun run --bun vitepress dev docs",
+    "build:docs": "node ./node_modules/vitepress/bin/vitepress.js build docs",
+    "dev:docs": "bun run build:package && node ./node_modules/vitepress/bin/vitepress.js dev docs",
     "dev:example": "bun run build:package && bun run --bun vite --config examples/plain-vue/vite.local.config.js",
     "lint:eslint": "bun run --bun eslint .",
     "format:check": "bun run --bun prettier . --check --ignore-unknown",
@@ -43,7 +48,13 @@
     "test:package": "bun run build:package && node scripts/test-package-task.js"
   },
   "peerDependencies": {
+    "vitepress": "^1.6.0",
     "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "vitepress": {
+      "optional": true
+    }
   },
   "dependencies": {
     "@codemirror/state": "^6.7.6",

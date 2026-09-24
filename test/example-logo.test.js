@@ -2,6 +2,7 @@ import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 
 import ExampleLogo from '../docs/components/ExampleLogo.vue';
+import exampleLogoSource from '../docs/components/ExampleLogo.vue?raw';
 import { logoSchema } from '../docs/example-schemas.js';
 
 describe('ExampleLogo', () => {
@@ -56,6 +57,11 @@ describe('ExampleLogo', () => {
     expect(wrapper.element.style.getPropertyValue('--example-logo-image')).toContain(
       'tms-mark.svg',
     );
+  });
+
+  it('keeps the mark at the same wrapper size as every other layout', () => {
+    expect(exampleLogoSource).toContain('width: min(100%, 20rem);');
+    expect(exampleLogoSource).not.toMatch(/\.example-logo\[data-type='mark'\]\s*\{/);
   });
 
   it('falls back from blank presentation values and an unsupported type', async () => {

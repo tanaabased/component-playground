@@ -56,10 +56,11 @@ function getShikiHighlighter() {
     import('shiki/core'),
     import('shiki/engine/javascript'),
     import('shiki/langs/html.mjs'),
-  ]).then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, html]) => {
+    import('shiki/langs/vue.mjs'),
+  ]).then(([{ createHighlighterCore }, { createJavaScriptRegexEngine }, html, vue]) => {
     return createHighlighterCore({
       themes: [],
-      langs: [html.default],
+      langs: [html.default, vue.default],
       engine: createJavaScriptRegexEngine(),
     });
   });
@@ -111,6 +112,11 @@ const props = defineProps({
   appearance: {
     type: String,
     default: 'auto',
+  },
+  language: {
+    type: String,
+    default: 'vue',
+    validator: (value) => ['vue', 'html'].includes(value),
   },
   syntaxThemes: {
     type: Object,
@@ -347,7 +353,7 @@ async function refreshSyntaxDecorations(code) {
     if (sequence !== highlightSequence || !view || !syntaxCompartment) return;
 
     const tokenLines = highlighter.codeToTokensWithThemes(code, {
-      lang: 'html',
+      lang: props.language,
       themes: {
         light: lightTheme,
         dark: darkTheme,
@@ -465,7 +471,6 @@ onMounted(async () => {
           '&': {
             backgroundColor: 'transparent',
             color: 'inherit',
-            fontSize: 'var(--_component-playground-font-size)',
           },
           '.cm-content': {
             fontFamily: 'var(--_component-playground-monospace-font-family)',
@@ -529,7 +534,7 @@ watch(
 );
 
 watch(
-  () => [props.syntaxThemes?.light, props.syntaxThemes?.dark],
+  () => [props.language, props.syntaxThemes?.light, props.syntaxThemes?.dark],
   () => {
     if (!view) return;
 
@@ -551,7 +556,6 @@ onBeforeUnmount(() => {
   min-width: 0;
   color: var(--_component-playground-foreground-color);
   font-family: var(--_component-playground-monospace-font-family);
-  font-size: var(--_component-playground-font-size);
   line-height: var(--_component-playground-line-height);
 }
 

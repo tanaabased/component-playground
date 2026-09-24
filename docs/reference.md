@@ -64,14 +64,17 @@ automatic count from a numeric parent prop.
 | `initialState` | Optional `{ controls, props, slots }` overrides. Declared keys override schema defaults; other keys are ignored. |
 | `previewFit`   | `full` (default) or `contained`. Invalid values resolve to `full`.                                               |
 | `appearance`   | `auto` (default), `light`, or `dark`. Invalid values resolve to `auto`.                                          |
+| `language`     | `vue` (default) or `html`; controls the visible code label and Shiki grammar.                                    |
 | `syntaxThemes` | Optional `{ light, dark }` Shiki theme registrations or lazy registration loaders.                               |
 
 ## Syntax highlighting contract
 
-Omitting `syntaxThemes` preserves the lazily loaded `github-light` and `github-dark` defaults. Each
-configured value may be a Shiki theme registration or a function that returns a registration, module,
-or promise. Import themes from exact `shiki/themes/*.mjs` paths so consumers ship only the selected
-pair rather than the complete bundled-theme registry.
+The `language` prop defaults to `vue`; `html` is available for examples that generate plain HTML. It
+selects both the visible language label and the loaded Shiki grammar. Omitting `syntaxThemes`
+preserves the lazily loaded `github-light` and `github-dark` defaults. Each configured value may be a
+Shiki theme registration or a function that returns a registration, module, or promise. Import
+themes from exact `shiki/themes/*.mjs` paths so consumers ship only the selected pair rather than the
+complete bundled-theme registry.
 
 Raw registration pairs can be shared with compatible Shiki-based Markdown renderers. Lazy loaders are
 useful when an application wants separate theme chunks, but build-time renderers generally consume
@@ -151,7 +154,9 @@ or `0`. Enum values and boolean attributes are operated as controls rather than 
 - <kbd>Escape</kbd> closes an enum menu and restores editor focus. Moving focus outside the editor or
   menu closes it without restoring focus.
 
-The **copy** and **reset** controls are ordinary buttons and remain keyboard reachable. The live
+The standalone code header presents the active language and copy action as `vue | copy`; the action
+changes to `copied` after activation. The VitePress integration projects its native icon treatment
+from the same semantic button. **Copy** and **reset** remain keyboard reachable. The live
 [capability examples](/examples) demonstrate each editable region, controls, reset, copied output,
 and event observation.
 

@@ -89,10 +89,6 @@ const logoVariables = computed(() => ({
   color: var(--vp-c-brand-2);
 }
 
-.example-logo[data-type='mark'] {
-  width: min(100%, 12rem);
-}
-
 .example-logo__image {
   display: block;
   width: 100%;
