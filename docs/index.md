@@ -4,7 +4,6 @@ layout: home
 hero:
   name: Component Playground
   text: Interactive Vue examples without a theme dependency
-  tagline: Proof of concept for @tanaab/component-playground 0.0.1
   actions:
     - theme: brand
       text: Install

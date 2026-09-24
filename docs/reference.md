@@ -168,7 +168,7 @@ replacement, because hand-waving at a migration is how documentation becomes arc
 
 | Original theme capability                                     | Standalone status    | Documentation                                                           |
 | ------------------------------------------------------------- | -------------------- | ----------------------------------------------------------------------- |
-| Preview beside editable component usage                       | Preserved            | [Examples: props and slots](/examples#props-and-text-or-html-slots)     |
+| Preview beside editable component usage                       | Preserved            | [Box example](/examples#box-type-link-and-content)                      |
 | Editable props, text slots, HTML slots, and repeated children | Preserved            | [Schema shape](#schema-shape), [examples](/examples)                    |
 | Enum, boolean, preset, and count controls                     | Preserved            | [Controls and copy behavior](#controls-and-copy-behavior)               |
 | Copyable component usage                                      | Preserved            | [Controls and copy behavior](#controls-and-copy-behavior)               |

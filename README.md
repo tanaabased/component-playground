@@ -30,11 +30,11 @@ bun run dev:docs
 non-watch, focused, and watch modes using Vue Test Utils and jsdom; they verify behavior rather than
 browser layout or visual appearance.
 
-The Leia-backed scenarios in `examples/vue` and `examples/vitepress` install the same candidate
-tarball into separate consumers and run both production builds in CI. They are installation-contract
-checks, while the unit and component suites continue to own runtime behavior. `build` produces the
-package and the stock-theme VitePress site; `dev:docs` builds the local package first so the site
-exercises its public exports.
+The example CI matrix builds and packs the candidate independently for each Leia-backed scenario in
+`examples/vue` and `examples/vitepress`. Each scenario installs its package into a disposable
+consumer and runs its production build. They are installation-contract checks, while the unit and
+component suites continue to own runtime behavior. `build` produces the package and the stock-theme
+VitePress site; `dev:docs` builds the local package first so the site exercises its public exports.
 
 ## Deploy
 
