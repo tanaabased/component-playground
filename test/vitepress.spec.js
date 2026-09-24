@@ -28,6 +28,9 @@ describe('VitePress integration contract', () => {
       'content: var(--vp-code-copy-copied-text-content)',
       'color: var(--vp-code-lang-color)',
       'border: 0',
+      'outline: none',
+      'display: contents',
+      'display: none',
     ];
 
     for (const mapping of expectedMappings) {
@@ -36,6 +39,19 @@ describe('VitePress integration contract', () => {
 
     assert.match(stylesheet, /^\.component-playground\[data-vitepress\] \{/m);
     assert.doesNotMatch(stylesheet, /^\.component-playground \{/m);
+  });
+
+  it('keeps the standalone language and copy actions in one text metadata row', () => {
+    const playground = readFileSync(
+      new URL('../components/ComponentPlayground.vue', import.meta.url),
+      'utf8',
+    );
+
+    assert.match(playground, /class="component-playground__code-meta"/);
+    assert.match(playground, /class="component-playground__code-separator"[^>]*>\|<\/span>/);
+    assert.match(playground, /\.component-playground__code-meta \{[\s\S]*?display: flex;/);
+    assert.match(playground, /\.component-playground__copy \{[\s\S]*?border: 0;/);
+    assert.match(playground, /\.component-playground__copy:hover \{\s*text-decoration: underline;/);
   });
 
   it('should apply the relative VitePress code size only once', () => {

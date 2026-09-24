@@ -19,10 +19,26 @@
   border: 0;
 }
 
-.component-playground[data-vitepress] .component-playground__code > .component-playground__copy {
+.component-playground[data-vitepress] .component-playground__code:focus-within {
+  outline: none;
+}
+
+.component-playground[data-vitepress] .component-playground__code-meta {
+  display: contents;
+}
+
+.component-playground[data-vitepress] .component-playground__code-separator {
+  display: none;
+}
+
+.component-playground[data-vitepress]
+  .component-playground__code-meta
+  > .component-playground__copy {
   direction: ltr;
+  position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 3;
   width: 40px;
   height: 40px;
   padding: 0;
@@ -44,32 +60,34 @@
 
 .component-playground[data-vitepress]
   .component-playground__code:hover
+  > .component-playground__code-meta
   > .component-playground__copy,
 .component-playground[data-vitepress]
   .component-playground__code
+  > .component-playground__code-meta
   > .component-playground__copy:focus {
   opacity: 1;
 }
 
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__copy:hover,
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__copy.copied {
   border-color: var(--vp-code-copy-code-hover-border-color);
   background-color: var(--vp-code-copy-code-hover-bg);
 }
 
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__copy.copied {
   border-radius: 0 4px 4px 0;
   background-image: var(--vp-icon-copied);
 }
 
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__copy.copied::before {
   position: relative;
   top: -1px;
@@ -94,20 +112,23 @@
 }
 
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__language {
+  position: absolute;
   top: 2px;
   right: 8px;
+  z-index: 2;
   color: var(--vp-code-lang-color);
   font-size: 12px;
 }
 
 .component-playground[data-vitepress]
   .component-playground__code:hover
+  > .component-playground__code-meta
   > .component-playground__copy
   + .component-playground__language,
 .component-playground[data-vitepress]
-  .component-playground__code
+  .component-playground__code-meta
   > .component-playground__copy:focus
   + .component-playground__language {
   opacity: 0;

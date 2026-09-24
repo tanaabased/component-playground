@@ -172,9 +172,9 @@ made the heading a work of fiction.
 </div>
 
 ::: tip Try it
-Compare the standalone border, text copy control, and manual appearance selector with the integrated
-borderless code block, VitePress copy control, and site appearance. Both should show `vue` in the
-top-right corner. Hover the integrated code to reveal its copy control, then toggle `border-top`,
+Compare the standalone border, compact `vue | copy` control, and manual appearance selector with the
+integrated borderless code block, VitePress copy control, and site appearance. The integrated block
+should not gain an outer focus ring. Hover it to reveal its copy control, then toggle `border-top`,
 `border-bottom`, and `orientation`; both implementations should retain identical component behavior.
 :::
 

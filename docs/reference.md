@@ -154,7 +154,9 @@ or `0`. Enum values and boolean attributes are operated as controls rather than 
 - <kbd>Escape</kbd> closes an enum menu and restores editor focus. Moving focus outside the editor or
   menu closes it without restoring focus.
 
-The **copy** and **reset** controls are ordinary buttons and remain keyboard reachable. The live
+The standalone code header presents the active language and copy action as `vue | copy`; the action
+changes to `copied` after activation. The VitePress integration projects its native icon treatment
+from the same semantic button. **Copy** and **reset** remain keyboard reachable. The live
 [capability examples](/examples) demonstrate each editable region, controls, reset, copied output,
 and event observation.
 

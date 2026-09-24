@@ -612,9 +612,21 @@ describe('ComponentPlayground', () => {
     });
 
     expect(wrapper.get('.component-playground').attributes('data-vitepress')).toBeUndefined();
+    expect(wrapper.get('.component-playground__code-separator').text()).toBe('|');
     expect(wrapper.get('.component-playground__language').text()).toBe('vue');
+    expect(wrapper.get('[aria-label="Copy code"]').text()).toBe('copy');
     expect(wrapper.getComponent(InteractiveCode).props('language')).toBe('vue');
     await waitForTokenStyles(wrapper);
+
+    vi.useFakeTimers();
+    await wrapper.get('[aria-label="Copy code"]').trigger('click');
+    await settle();
+
+    expect(wrapper.get('[aria-label="Copied code"]').text()).toBe('copied');
+    vi.runAllTimers();
+    await settle();
+    expect(wrapper.get('[aria-label="Copy code"]').text()).toBe('copy');
+    vi.useRealTimers();
 
     await wrapper.setProps({ language: 'html' });
     await settle();

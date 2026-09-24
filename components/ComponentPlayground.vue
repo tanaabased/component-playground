@@ -44,17 +44,20 @@
 
     <div class="component-playground__code-area">
       <div class="component-playground__code">
-        <button
-          class="component-playground__copy"
-          :class="{ copied }"
-          type="button"
-          :aria-label="copyLabel"
-          :title="copyLabel"
-          @click="copyCode"
-        >
-          {{ copied ? 'copied' : 'copy' }}
-        </button>
-        <span class="component-playground__language">{{ props.language }}</span>
+        <div class="component-playground__code-meta">
+          <button
+            class="component-playground__copy"
+            :class="{ copied }"
+            type="button"
+            :aria-label="copyLabel"
+            :title="copyLabel"
+            @click="copyCode"
+          >
+            {{ copied ? 'copied' : 'copy' }}
+          </button>
+          <span class="component-playground__language">{{ props.language }}</span>
+          <span class="component-playground__code-separator" aria-hidden="true">|</span>
+        </div>
 
         <InteractiveCode
           :appearance="resolvedAppearance"
@@ -457,30 +460,38 @@ onBeforeUnmount(() => window.clearTimeout(copyTimeoutId));
   outline-offset: var(--_component-playground-focus-width);
 }
 
-.component-playground__copy {
+.component-playground__code-meta {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 0.75rem;
+  right: 0.875rem;
   z-index: 3;
-  padding: var(--_component-playground-control-padding-block)
-    var(--_component-playground-control-padding-inline);
-  border-color: var(--_component-playground-border-color);
-  border-style: var(--_component-playground-border-style);
-  border-width: var(--_component-playground-border-width);
-  border-radius: var(--_component-playground-border-radius);
-  background: var(--_component-playground-background-color);
-  color: var(--_component-playground-foreground-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--_component-playground-muted-color);
+  font-size: 0.8125em;
+  line-height: 1;
+}
+
+.component-playground__copy {
+  order: 3;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--_component-playground-accent-color);
   cursor: pointer;
   font: inherit;
-  font-size: 0.8125em;
+  font-weight: 500;
+  text-decoration: none;
+  text-underline-offset: 0.15em;
 }
 
 .component-playground__copy:hover {
-  background-color: var(--_component-playground-hover-background-color);
+  text-decoration: underline;
 }
 
 .component-playground__copy:active {
-  background-color: var(--_component-playground-active-background-color);
+  color: var(--_component-playground-foreground-color);
 }
 
 .component-playground__copy:focus-visible {
@@ -489,17 +500,19 @@ onBeforeUnmount(() => window.clearTimeout(copyTimeoutId));
 }
 
 .component-playground__language {
-  position: absolute;
-  top: 0.5rem;
-  right: 4.75rem;
-  z-index: 2;
-  color: var(--_component-playground-muted-color);
-  font-size: 0.8125em;
+  order: 1;
   font-weight: 500;
   pointer-events: none;
   transition:
     color 0.4s,
     opacity 0.4s;
+  user-select: none;
+}
+
+.component-playground__code-separator {
+  order: 2;
+  opacity: 0.65;
+  pointer-events: none;
   user-select: none;
 }
 
