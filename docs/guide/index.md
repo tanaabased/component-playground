@@ -5,44 +5,11 @@ independent of VitePress; this site uses the stock VitePress theme as one ordina
 
 ## Install
 
-```sh
-npm install @tanaab/component-playground
-```
-
-Vue 3.5 or later is required as a peer dependency.
-
-## Minimal Vue usage
-
-Import the component and its optional structural stylesheet, then supply a component and schema:
-
-```vue
-<template>
-  <ComponentPlayground
-    :component="ExampleButton"
-    :schema="schema"
-    source="https://github.com/example/project/blob/main/ExampleButton.vue"
-  />
-</template>
-
-<script setup>
-import { ComponentPlayground } from '@tanaab/component-playground';
-import '@tanaab/component-playground/style.css';
-
-import ExampleButton from './ExampleButton.vue';
-
-const schema = {
-  name: 'ExampleButton',
-  props: {
-    label: { kind: 'string', default: 'Continue' },
-    disabled: { kind: 'boolean', default: false },
-  },
-};
-</script>
-```
+Follow the [installation guide](/installation) for complete Vue and VitePress setup, exact public
+imports, and runnable examples. Vue 3.5 or later is required as a peer dependency.
 
 The source URL is explicit because the package cannot know where its consumer keeps source files.
-This deliberately replaces the original theme playground's automatic source-link inference: pass a
-URL when a source link is useful, or omit `source` when it is not.
+Pass a URL when a source link is useful, or omit `source` when it is not.
 
 ## Component API
 
@@ -142,47 +109,3 @@ the clipboard and emits the same string as `copy`.
 
 See the [live event and initial-state example](/examples#events-and-initial-state) and the
 [interaction reference](/reference#interaction-and-keyboard-behavior).
-
-## VitePress usage
-
-Use the optional VitePress helper and stylesheet in a local theme extension. The helper registers
-the existing standalone component, supplies the shared Shiki pair, and follows VitePress's reactive
-appearance instead of the operating system:
-
-```js
-// docs/.vitepress/theme/index.js
-import '@tanaab/component-playground/style.css';
-import { withComponentPlayground } from '@tanaab/component-playground/vitepress';
-import '@tanaab/component-playground/vitepress.css';
-import { useData } from 'vitepress';
-import DefaultTheme from 'vitepress/theme';
-
-import { syntaxThemePairs } from '../../syntax-themes.js';
-
-export default withComponentPlayground(DefaultTheme, {
-  syntaxThemes: syntaxThemePairs.github,
-  useData,
-});
-```
-
-Use that same resolved pair in VitePress's Markdown configuration:
-
-```js
-// docs/.vitepress/config.js
-import { defineConfig } from 'vitepress';
-
-import { syntaxThemePairs } from '../syntax-themes.js';
-
-export default defineConfig({
-  markdown: { theme: syntaxThemePairs.github },
-});
-```
-
-Static Markdown code is highlighted during the site build. Switching VitePress appearance selects
-the corresponding colors already generated for that pair; changing a playground's `syntaxThemes`
-prop at runtime does not recolor existing Markdown. A live Markdown renderer would be an absurdly
-large machine for this tiny job, so the integration does not add one.
-
-Markdown pages can then use `<ComponentPlayground>` with page-local schemas and imported example
-components. See the [capability examples](/examples) for the complete proof of concept and the
-[schema reference](/reference) for supported shapes.

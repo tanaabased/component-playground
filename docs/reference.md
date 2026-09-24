@@ -168,13 +168,13 @@ replacement, because hand-waving at a migration is how documentation becomes arc
 
 | Original theme capability                                     | Standalone status    | Documentation                                                           |
 | ------------------------------------------------------------- | -------------------- | ----------------------------------------------------------------------- |
-| Preview beside editable component usage                       | Preserved            | [Examples: props and slots](/examples#props-and-text-or-html-slots)     |
+| Preview beside editable component usage                       | Preserved            | [Box example](/examples#box-type-link-and-content)                      |
 | Editable props, text slots, HTML slots, and repeated children | Preserved            | [Schema shape](#schema-shape), [examples](/examples)                    |
 | Enum, boolean, preset, and count controls                     | Preserved            | [Controls and copy behavior](#controls-and-copy-behavior)               |
 | Copyable component usage                                      | Preserved            | [Controls and copy behavior](#controls-and-copy-behavior)               |
 | Reset to authored initial values                              | Preserved            | [Events and state](#events-and-state)                                   |
 | Keyboard operation of editable regions and menus              | Preserved            | [Interaction and keyboard behavior](#interaction-and-keyboard-behavior) |
-| Automatic source-link inference from a theme page             | Deliberately changed | [Explicit `source` URLs](/guide/#minimal-vue-usage)                     |
+| Automatic source-link inference from a theme page             | Deliberately changed | [Explicit `source` URLs](/installation#vue)                             |
 
 No missing implementation capability was found during this documentation audit. Any later,
 reproducible discrepancy belongs in a follow-up issue rather than in an opportunistic expansion of

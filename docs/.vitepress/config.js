@@ -16,8 +16,24 @@ export default defineConfig({
   markdown: {
     theme: syntaxThemePairs.github,
   },
+  transformPageData(pageData) {
+    if (pageData.relativePath !== 'index.md') {
+      return;
+    }
+
+    return {
+      frontmatter: {
+        ...pageData.frontmatter,
+        hero: {
+          ...pageData.frontmatter.hero,
+          tagline: `Proof of concept for ${packageMetadata.name} ${packageMetadata.version}`,
+        },
+      },
+    };
+  },
   themeConfig: {
     nav: [
+      { text: 'Installation', link: '/installation' },
       { text: 'Guide', link: '/guide/' },
       { text: 'Examples', link: '/examples' },
       { text: `v${packageMetadata.version}`, link: '/reference' },
@@ -26,6 +42,7 @@ export default defineConfig({
       {
         text: 'Start here',
         items: [
+          { text: 'Installation', link: '/installation' },
           { text: 'Guide', link: '/guide/' },
           { text: 'Capability examples', link: '/examples' },
           { text: 'Events and initial state', link: '/examples#events-and-initial-state' },

@@ -40,10 +40,6 @@ jobs:
       - name: Pack prepared package
         id: pack
         uses: tanaabased/actions/npm-pack@v1
-      - name: Test exact packed artifact
-        env:
-          TARBALL: ${{ steps.pack.outputs.tarball-path }}
-        run: node scripts/test-package-task.js
       - name: Dry-run publication
         uses: tanaabased/actions/publish-npm@v1
         with:

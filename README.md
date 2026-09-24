@@ -23,7 +23,6 @@ bun run test:components
 bun run test:components -- -t "test name"
 bun run test:components:watch
 bun run build
-bun run test:package
 bun run dev:docs
 ```
 
@@ -31,10 +30,11 @@ bun run dev:docs
 non-watch, focused, and watch modes using Vue Test Utils and jsdom; they verify behavior rather than
 browser layout or visual appearance.
 
-`test:package` builds the package, packs it, installs that exact tarball into the plain Vue example,
-and runs the example's production build. It requires Node 26 because the current Vite toolchain is
-part of the consumer check. `build` produces both the package and the stock-theme VitePress site;
-`dev:docs` builds the local package first so the site exercises its public exports.
+The example CI matrix builds and packs the candidate independently for each Leia-backed scenario in
+`examples/vue` and `examples/vitepress`. Each scenario installs its package into a disposable
+consumer and runs its production build. They are installation-contract checks, while the unit and
+component suites continue to own runtime behavior. `build` produces the package and the stock-theme
+VitePress site; `dev:docs` builds the local package first so the site exercises its public exports.
 
 ## Deploy
 
@@ -78,5 +78,6 @@ VitePress consumers can opt into `@tanaab/component-playground/vitepress` and
 `@tanaab/component-playground/vitepress.css`. The helper registers the same component with the
 site's reactive appearance and a shared Markdown/playground Shiki pair; ordinary Vue imports do not
 load VitePress.
-The [guide](docs/guide/index.md), [live capability examples](docs/examples.md), and [schema and styling
-reference](docs/reference.md) document the complete contract.
+The [installation paths](docs/installation.md), [guide](docs/guide/index.md), [live capability
+examples](docs/examples.md), and [schema and styling reference](docs/reference.md) document the
+complete contract.

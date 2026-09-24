@@ -68,7 +68,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['examples/plain-vue/**/*.{js,vue}'],
+    files: ['examples/vue/**/*.{js,vue}'],
     languageOptions: {
       globals: globals.browser,
     },

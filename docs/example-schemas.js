@@ -91,7 +91,7 @@ export const gridSchema = {
           label: '8',
           props: { link: 'https://github.com/tanaabased/theme', style: gridBoxStyles.danger },
         },
-        { label: '9', props: { link: '/guide/#install', style: gridBoxStyles.brand } },
+        { label: '9', props: { link: '/installation', style: gridBoxStyles.brand } },
         {
           label: '10',
           props: { type: 'content', style: gridBoxStyles.tip },
@@ -179,7 +179,7 @@ export const listSchema = {
             attrs: { target: '_blank', rel: 'noreferrer', title: 'Open the Tanaab theme' },
           },
           { label: 'About', link: '/', attrs: { title: 'Return home' } },
-          { label: 'Install', link: '/guide/#install' },
+          { label: 'Install', link: '/installation' },
           {
             label: 'Download example',
             link: '/reference.html',
