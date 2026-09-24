@@ -465,7 +465,6 @@ onMounted(async () => {
           '&': {
             backgroundColor: 'transparent',
             color: 'inherit',
-            fontSize: 'var(--_component-playground-font-size)',
           },
           '.cm-content': {
             fontFamily: 'var(--_component-playground-monospace-font-family)',
@@ -551,7 +550,6 @@ onBeforeUnmount(() => {
   min-width: 0;
   color: var(--_component-playground-foreground-color);
   font-family: var(--_component-playground-monospace-font-family);
-  font-size: var(--_component-playground-font-size);
   line-height: var(--_component-playground-line-height);
 }
 

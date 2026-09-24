@@ -22,10 +22,32 @@ describe('VitePress integration contract', () => {
       '--component-playground-monospace-font-family: var(--vp-font-family-mono)',
       '--component-playground-font-size: var(--vp-code-font-size)',
       '--component-playground-line-height: var(--vp-code-line-height)',
+      'border: 1px solid var(--vp-code-copy-code-border-color)',
+      'background-color: var(--vp-code-copy-code-bg)',
+      'background-image: var(--vp-icon-copy)',
+      'content: var(--vp-code-copy-copied-text-content)',
     ];
 
     for (const mapping of expectedMappings) {
       assert.match(stylesheet, new RegExp(mapping.replace(/[()]/g, '\\$&')));
     }
+  });
+
+  it('should apply the relative VitePress code size only once', () => {
+    const playground = readFileSync(
+      new URL('../components/ComponentPlayground.vue', import.meta.url),
+      'utf8',
+    );
+    const interactiveCode = readFileSync(
+      new URL('../components/InteractiveCode.vue', import.meta.url),
+      'utf8',
+    );
+    const fontSizeDeclaration = 'font-size: var(--_component-playground-font-size);';
+
+    assert.equal(playground.split(fontSizeDeclaration).length - 1, 1);
+    assert.doesNotMatch(
+      interactiveCode,
+      /font(?:Size|-size): ['"]?var\(--_component-playground-font-size\)/,
+    );
   });
 });

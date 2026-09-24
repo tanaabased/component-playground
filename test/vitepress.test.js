@@ -147,6 +147,7 @@ describe('VitePress integration', () => {
     await wrapper.get('[aria-label="Copy code"]').trigger('click');
     await settle();
     expect(onCopy).toHaveBeenCalledWith(expect.stringContaining('orientation="right"'));
+    expect(wrapper.get('[aria-label="Copied code"]').classes()).toContain('copied');
     vi.runAllTimers();
   });
 

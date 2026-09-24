@@ -46,6 +46,7 @@
       <div class="component-playground__code">
         <button
           class="component-playground__copy"
+          :class="{ copied }"
           type="button"
           :aria-label="copyLabel"
           :title="copyLabel"
@@ -87,7 +88,7 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
 
 import InteractiveCode from './InteractiveCode.vue';
 import {
@@ -144,6 +145,8 @@ const emit = defineEmits(['copy', 'update:state']);
 
 const copied = ref(false);
 const state = reactive(createPlaygroundState(props.schema, props.initialState));
+
+let copyTimeoutId;
 
 const generated = computed(() => generateComponentUsage(props.schema, state));
 const previewProps = computed(() => getPreviewProps(props.schema, state));
@@ -280,15 +283,22 @@ function selectEnum({ control, prop, region, value }) {
   state.props[prop] = value;
 }
 
-async function copyCode() {
+async function copyCode(event) {
+  const button = event.currentTarget;
+
   await navigator.clipboard.writeText(generated.value.copyCode);
   copied.value = true;
   emit('copy', generated.value.copyCode);
 
-  window.setTimeout(() => {
+  window.clearTimeout(copyTimeoutId);
+  copyTimeoutId = window.setTimeout(() => {
     copied.value = false;
-  }, 1400);
+    button.blur();
+    copyTimeoutId = undefined;
+  }, 2000);
 }
+
+onBeforeUnmount(() => window.clearTimeout(copyTimeoutId));
 </script>
 
 <style scoped>
@@ -459,11 +469,11 @@ async function copyCode() {
 }
 
 .component-playground__copy:hover {
-  background: var(--_component-playground-hover-background-color);
+  background-color: var(--_component-playground-hover-background-color);
 }
 
 .component-playground__copy:active {
-  background: var(--_component-playground-active-background-color);
+  background-color: var(--_component-playground-active-background-color);
 }
 
 .component-playground__copy:focus-visible {
